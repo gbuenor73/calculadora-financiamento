@@ -31,6 +31,8 @@ const App: React.FC = () => {
     return value.toFixed(2).replace('.', ',');
   };
 
+  const isInvalidDownPayment = inputs.downPayment >= inputs.propertyValue && inputs.propertyValue > 0;
+
   const results = useMemo((): CalculationResults => {
     const loan = inputs.propertyValue - inputs.downPayment;
     const originalMonths = inputs.termInMonths;
@@ -221,15 +223,34 @@ const App: React.FC = () => {
                 <label className="text-xs font-bold text-slate-500 uppercase">Valor do Imóvel</label>
                 <div className="relative">
                   <span className="absolute left-3 top-2.5 text-slate-400 text-sm">R$</span>
-                  <input type="text" inputMode="numeric" name="propertyValue" value={formatCurrency(inputs.propertyValue)} onChange={handleCurrencyChange} className="w-full pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-lg font-medium text-slate-900" />
+                  <input 
+                    type="text" 
+                    inputMode="numeric" 
+                    name="propertyValue" 
+                    value={formatCurrency(inputs.propertyValue)} 
+                    onChange={handleCurrencyChange} 
+                    className={`w-full pl-9 pr-4 py-2 border rounded-lg font-medium text-slate-900 outline-none transition-colors ${isInvalidDownPayment ? 'border-red-500 bg-red-50' : 'bg-slate-50 border-slate-200'}`} 
+                  />
                 </div>
               </div>
               <div className="space-y-1">
                 <label className="text-xs font-bold text-slate-500 uppercase">Entrada</label>
                 <div className="relative">
                   <span className="absolute left-3 top-2.5 text-slate-400 text-sm">R$</span>
-                  <input type="text" inputMode="numeric" name="downPayment" value={formatCurrency(inputs.downPayment)} onChange={handleCurrencyChange} className="w-full pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-lg font-medium text-slate-900" />
+                  <input 
+                    type="text" 
+                    inputMode="numeric" 
+                    name="downPayment" 
+                    value={formatCurrency(inputs.downPayment)} 
+                    onChange={handleCurrencyChange} 
+                    className={`w-full pl-9 pr-4 py-2 border rounded-lg font-medium text-slate-900 outline-none transition-colors ${isInvalidDownPayment ? 'border-red-500 bg-red-50' : 'bg-slate-50 border-slate-200'}`} 
+                  />
                 </div>
+                {isInvalidDownPayment && (
+                  <p className="text-[10px] font-bold text-red-600 mt-1 uppercase animate-pulse">
+                    O valor do imóvel deve ser maior que o valor da entrada
+                  </p>
+                )}
               </div>
               <div className="grid grid-cols-2 gap-3 pt-2">
                 <div className="space-y-1">
@@ -348,12 +369,12 @@ const App: React.FC = () => {
 
           <Card className="bg-white text-slate-900 border-2 border-slate-200 shadow-sm">
             <p className="text-slate-500 text-[10px] font-bold uppercase tracking-widest mb-1">Saldo a Financiar</p>
-            <h2 className="text-2xl font-bold">R$ {formatCurrency(results.loanAmount)}</h2>
+            <h2 className="text-2xl font-bold">R$ {formatCurrency(Math.max(0, results.loanAmount))}</h2>
           </Card>
         </div>
 
         <div className="lg:col-span-8 flex flex-col gap-6">
-          {hasExtra && (
+          {hasExtra && !isInvalidDownPayment && (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 animate-in fade-in slide-in-from-top-4 duration-500">
               <Card className="bg-blue-50 text-slate-900 border-blue-200 border flex items-center gap-4">
                 <div className="w-12 h-12 bg-blue-100 text-blue-600 rounded-xl flex items-center justify-center">
@@ -383,23 +404,29 @@ const App: React.FC = () => {
           )}
 
           <Card title={hasExtra ? "Impacto da Estratégia no Custo" : "Projeção de Juros Totais"}>
-            <div className="h-64 w-full">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                  <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 12, fontWeight: 600, fill: '#64748b' }} />
-                  <YAxis hide />
-                  <Tooltip 
-                    cursor={{ fill: 'transparent' }}
-                    formatter={(val: number) => `R$ ${formatCurrency(val)}`}
-                    contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }}
-                  />
-                  <Bar dataKey="valor" radius={[8, 8, 0, 0]} barSize={hasExtra ? 60 : 120}>
-                    {chartData.map((entry, index) => <Cell key={index} fill={entry.fill} />)}
-                  </Bar>
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
+            {isInvalidDownPayment ? (
+              <div className="h-64 flex items-center justify-center bg-slate-50 rounded-xl border-2 border-dashed border-slate-200">
+                <p className="text-slate-400 font-medium">Corrija os valores para ver a projeção</p>
+              </div>
+            ) : (
+              <div className="h-64 w-full">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                    <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 12, fontWeight: 600, fill: '#64748b' }} />
+                    <YAxis hide />
+                    <Tooltip 
+                      cursor={{ fill: 'transparent' }}
+                      formatter={(val: number) => `R$ ${formatCurrency(val)}`}
+                      contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }}
+                    />
+                    <Bar dataKey="valor" radius={[8, 8, 0, 0]} barSize={hasExtra ? 60 : 120}>
+                      {chartData.map((entry, index) => <Cell key={index} fill={entry.fill} />)}
+                    </Bar>
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            )}
             <div className="mt-4 flex justify-between items-end border-t border-slate-50 pt-4">
               <div>
                 <p className="text-[10px] text-slate-400 font-bold uppercase">
@@ -409,7 +436,7 @@ const App: React.FC = () => {
                   R$ {formatCurrency(results.totalPaid)}
                 </p>
               </div>
-              {hasExtra && (
+              {hasExtra && !isInvalidDownPayment && (
                 <div className="text-right">
                   <p className="text-[10px] text-emerald-600 font-bold uppercase">Novo Custo Total</p>
                   <p className="text-2xl font-black text-emerald-700">R$ {formatCurrency(results.optimizedTotalPaid)}</p>
@@ -429,7 +456,7 @@ const App: React.FC = () => {
              </Card>
           </div>
 
-          {(aiAnalysis || loadingAi) && (
+          {(aiAnalysis || loadingAi) && !isInvalidDownPayment && (
             <Card title="Análise Estratégica da IA" className="bg-slate-50 border-slate-200">
                {loadingAi ? (
                 <div className="flex flex-col items-center py-10 gap-3">
