@@ -27,6 +27,11 @@ const App: React.FC = () => {
     });
   };
 
+  // Helper para formatar taxa (sem separador de milhar para evitar confusão com moeda)
+  const formatRate = (value: number) => {
+    return value.toFixed(2).replace('.', ',');
+  };
+
   const results = useMemo((): CalculationResults => {
     const loan = inputs.propertyValue - inputs.downPayment;
     const months = inputs.termInYears * 12;
@@ -82,12 +87,10 @@ const App: React.FC = () => {
     ];
   }, [results, inputs]);
 
-  // Handler para campos de moeda com lógica de "deslocamento para a esquerda"
+  // Handler para campos com lógica de "deslocamento para a esquerda"
   const handleCurrencyChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    // Remove tudo que não é dígito
     const digits = value.replace(/\D/g, '');
-    // Transforma em número considerando os últimos 2 dígitos como centavos
     const numValue = parseInt(digits || '0', 10) / 100;
     
     setInputs(prev => {
@@ -98,10 +101,14 @@ const App: React.FC = () => {
   };
 
   const handleRateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = parseFloat(e.target.value.replace(',', '.')) || 0;
+    const { value } = e.target;
+    // Lógica de shift-left para a taxa
+    const digits = value.replace(/\D/g, '');
+    const numValue = parseInt(digits || '0', 10) / 100;
+    
     setInputs(prev => ({
       ...prev,
-      annualInterestRate: value,
+      annualInterestRate: numValue,
       lastEdited: 'rate'
     }));
   };
@@ -220,9 +227,9 @@ const App: React.FC = () => {
                   </div>
                   <input 
                     type="text" 
-                    inputMode="decimal"
+                    inputMode="numeric"
                     name="annualInterestRate"
-                    value={currentAnnualRate.toFixed(2).replace('.', ',')}
+                    value={formatRate(currentAnnualRate)}
                     onChange={handleRateChange}
                     className={`w-full px-4 py-2 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all border text-slate-900 font-medium ${inputs.lastEdited === 'rate' ? 'bg-white border-blue-200' : 'bg-slate-50 border-slate-200'}`}
                   />
