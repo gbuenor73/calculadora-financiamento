@@ -1,5 +1,6 @@
 
 export type AmortizationFrequency = 'monthly' | 'yearly' | 'once';
+export type AmortizationSystem = 'SAC' | 'PRICE';
 
 export interface ExtraAmortization {
   id: string;
@@ -14,6 +15,7 @@ export interface CalculationInputs {
   monthlyInstallment: number;
   annualInterestRate: number;
   termInMonths: number;
+  amortizationSystem: AmortizationSystem;
   extraAmortizations: ExtraAmortization[];
   lastEdited: 'installment' | 'rate';
 }
@@ -30,6 +32,8 @@ export interface CalculationResults {
   optimizedTotalPaid: number;
   interestSavings: number;
   monthsSaved: number;
+  firstInstallment: number;
+  lastInstallment: number;
 }
 
 export interface AmortizationEntry {

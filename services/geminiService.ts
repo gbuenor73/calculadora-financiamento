@@ -11,6 +11,7 @@ export async function analyzeFinancing(inputs: CalculationInputs, results: Calcu
 
   const prompt = `
     Analise este plano de financiamento imobiliário brasileiro com múltiplas estratégias de amortização:
+    - Sistema de Amortização: ${inputs.amortizationSystem}
     - Valor do Imóvel: R$ ${inputs.propertyValue.toLocaleString('pt-BR')}
     - Entrada: R$ ${inputs.downPayment.toLocaleString('pt-BR')}
     - Parcela Regular: R$ ${inputs.monthlyInstallment.toLocaleString('pt-BR')}
@@ -24,7 +25,7 @@ export async function analyzeFinancing(inputs: CalculationInputs, results: Calcu
     - Taxa de Juros Anual Real (CET): ${(results.annualInterestRate * 100).toFixed(2)}%
 
     Por favor:
-    1. Avalie a eficácia do conjunto de amortizações: qual delas parece ter o maior impacto?
+    1. Avalie a eficácia do conjunto de amortizações: qual delas parece ter o maior impacto considerando o sistema ${inputs.amortizationSystem}?
     2. Dê dicas sobre como otimizar ainda mais (ex: usar FGTS se não foi citado).
     3. Explique resumidamente o benefício psicológico e financeiro de reduzir o prazo vs reduzir a parcela.
     4. Comente se a taxa informada está competitiva para o cenário atual do Brasil.

@@ -1,8 +1,8 @@
 
-import { ExtraAmortization } from "../types";
+import { ExtraAmortization, AmortizationSystem, AmortizationEntry } from "../types";
 
 /**
- * Calculates the monthly interest rate using Newton-Raphson method
+ * Calculates the monthly interest rate using Newton-Raphson method (relevant for PRICE)
  */
 export function calculateMonthlyRate(loan: number, installment: number, months: number): number {
   if (installment * months <= loan) return 0;
@@ -27,7 +27,7 @@ export function calculateMonthlyRate(loan: number, installment: number, months: 
 }
 
 /**
- * Calculates the installment based on loan, monthly rate and months (PMT)
+ * Calculates the installment based on loan, monthly rate and months (PMT - relevant for PRICE)
  */
 export function calculateInstallment(loan: number, monthlyRate: number, months: number): number {
   if (monthlyRate === 0) return loan / months;
@@ -36,62 +36,80 @@ export function calculateInstallment(loan: number, monthlyRate: number, months: 
 }
 
 /**
- * Simulates the entire financing lifecycle with multiple extra amortizations
+ * Simulates the entire financing lifecycle with SAC or PRICE and multiple extra amortizations
  */
 export function simulateFinancing(
   loan: number, 
   monthlyRate: number, 
   regularInstallment: number, 
   maxMonths: number,
+  system: AmortizationSystem,
   extraAmortizations: ExtraAmortization[]
 ) {
   let balance = loan;
   let totalInterest = 0;
   let monthsCount = 0;
   let totalPaid = 0;
+  let firstInstallment = 0;
+  let lastInstallment = 0;
+  const history: AmortizationEntry[] = [];
 
-  while (balance > 0.01 && monthsCount < 1200) { // Safety cap at 100 years
+  const fixedPrincipalSAC = system === 'SAC' ? loan / maxMonths : 0;
+
+  while (balance > 0.01 && monthsCount < 1200) { 
     monthsCount++;
     const interest = balance * monthlyRate;
     
-    // Regular installment logic
-    let principalFromRegular = Math.min(balance, regularInstallment - interest);
-    if (principalFromRegular < 0) principalFromRegular = 0;
+    let principalFromRegular = 0;
+    let currentInstallment = 0;
 
-    // Calculate sum of applicable extra amortizations for THIS specific month
+    if (system === 'SAC') {
+      principalFromRegular = Math.min(balance, fixedPrincipalSAC);
+      currentInstallment = principalFromRegular + interest;
+    } else {
+      principalFromRegular = Math.min(balance, regularInstallment - interest);
+      if (principalFromRegular < 0) principalFromRegular = 0;
+      currentInstallment = principalFromRegular + interest;
+    }
+
+    if (monthsCount === 1) firstInstallment = currentInstallment;
+    lastInstallment = currentInstallment;
+
     let totalExtraThisMonth = 0;
     for (const amort of extraAmortizations) {
       if (monthsCount < amort.startMonth) continue;
-
       let applies = false;
-      if (amort.frequency === 'monthly') {
-        applies = true;
-      } else if (amort.frequency === 'yearly') {
-        applies = (monthsCount - amort.startMonth) % 12 === 0;
-      } else if (amort.frequency === 'once') {
-        applies = monthsCount === amort.startMonth;
-      }
-
-      if (applies) {
-        totalExtraThisMonth += amort.amount;
-      }
+      if (amort.frequency === 'monthly') applies = true;
+      else if (amort.frequency === 'yearly') applies = (monthsCount - amort.startMonth) % 12 === 0;
+      else if (amort.frequency === 'once') applies = monthsCount === amort.startMonth;
+      if (applies) totalExtraThisMonth += amort.amount;
     }
 
     const maxExtraPossible = Math.min(balance - principalFromRegular, totalExtraThisMonth);
     
     totalInterest += interest;
     totalPaid += (interest + principalFromRegular + maxExtraPossible);
+    
+    history.push({
+      month: monthsCount,
+      interest: interest,
+      principal: principalFromRegular,
+      extra: maxExtraPossible,
+      balance: Math.max(0, balance - (principalFromRegular + maxExtraPossible))
+    });
+
     balance -= (principalFromRegular + maxExtraPossible);
 
-    // Stop if we reached original term and have no extra payments left to process
     if (monthsCount >= maxMonths && balance <= 0.01) break;
-    // Safety exit if extra is zero and we reached the end
     if (monthsCount >= maxMonths && extraAmortizations.length === 0) break;
   }
 
   return {
     monthsCount,
     totalInterest,
-    totalPaid
+    totalPaid,
+    firstInstallment,
+    lastInstallment,
+    history
   };
 }
