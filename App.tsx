@@ -40,6 +40,11 @@ const App: React.FC = () => {
     setExpandedYears(next);
   };
 
+  const toggleAllYears = (years: number[], expand: boolean) => {
+    if (expand) setExpandedYears(new Set(years));
+    else setExpandedYears(new Set());
+  };
+
   const formatCurrency = (value: number) => {
     return value.toLocaleString('pt-BR', {
       minimumFractionDigits: 2,
@@ -204,6 +209,9 @@ const App: React.FC = () => {
     : [
         { name: 'Juros Totais', valor: results.totalInterest, fill: '#64748b' }
       ];
+
+  const yearsToExpand = yearlyEvolution.map(y => y.year);
+  const allExpanded = expandedYears.size === yearlyEvolution.length && yearlyEvolution.length > 0;
 
   return (
     <div className="min-h-screen pb-12">
@@ -383,26 +391,38 @@ const App: React.FC = () => {
           </Card>
 
           <Card title="Evolução do Financiamento" className="overflow-hidden">
-             <div className="flex justify-between items-center mb-4">
-               <p className="text-xs text-slate-500 font-medium">Resumo anual. Clique no ano para ver o detalhamento mensal.</p>
-               <button 
-                 onClick={() => setShowYearly(!showYearly)}
-                 className="text-blue-600 text-xs font-bold hover:underline"
-               >
-                 {showYearly ? "Ocultar Evolução" : "Ver Evolução Completa"}
-               </button>
+             <div className="flex flex-col md:flex-row md:items-center justify-between mb-6 gap-3">
+               <p className="text-xs text-slate-500 font-medium max-w-sm">
+                 Acompanhe a amortização ano a ano. Clique em um ano para ver o detalhamento mensal ou use os controles ao lado.
+               </p>
+               <div className="flex items-center gap-2">
+                 <button 
+                   onClick={() => setShowYearly(!showYearly)}
+                   className="flex items-center gap-1.5 bg-slate-100 text-slate-700 px-3 py-1.5 rounded-lg text-xs font-bold hover:bg-slate-200 transition-colors"
+                 >
+                   {showYearly ? "Ver Resumo" : "Ver Tabela"}
+                 </button>
+                 {showYearly && (
+                   <button 
+                     onClick={() => toggleAllYears(yearsToExpand, !allExpanded)}
+                     className="bg-blue-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold hover:bg-blue-700 transition-colors"
+                   >
+                     {allExpanded ? "Recolher Todos" : "Expandir Todos"}
+                   </button>
+                 )}
+               </div>
              </div>
              
              {showYearly && (
                <div className="overflow-x-auto -mx-6 px-6 scrollbar-hide">
-                 <table className="w-full text-left border-collapse min-w-[600px]">
-                   <thead>
+                 <table className="w-full text-left border-collapse min-w-[700px]">
+                   <thead className="sticky top-0 z-10">
                      <tr className="bg-slate-50 text-slate-400 text-[10px] font-bold uppercase tracking-wider">
                        <th className="py-3 px-4 first:rounded-l-xl">Ano / Mês</th>
-                       <th className="py-3 px-4">Parcela</th>
-                       <th className="py-3 px-4">Juros</th>
-                       <th className="py-3 px-4">Amortizado</th>
-                       <th className="py-3 px-4 last:rounded-r-xl">Saldo Devedor</th>
+                       <th className="py-3 px-4">Parcela Média</th>
+                       <th className="py-3 px-4">Juros no Período</th>
+                       <th className="py-3 px-4">Principal Amortizado</th>
+                       <th className="py-3 px-4 last:rounded-r-xl">Saldo Restante</th>
                      </tr>
                    </thead>
                    <tbody className="text-sm">
@@ -410,28 +430,44 @@ const App: React.FC = () => {
                        <React.Fragment key={y.year}>
                          <tr 
                             onClick={() => toggleYear(y.year)}
-                            className={`cursor-pointer transition-colors border-b border-slate-50 ${expandedYears.has(y.year) ? 'bg-blue-50/50' : 'hover:bg-slate-50'}`}
+                            className={`group cursor-pointer transition-all border-b border-slate-50 ${expandedYears.has(y.year) ? 'bg-blue-50/50' : 'hover:bg-slate-50/80'}`}
                          >
-                           <td className="py-4 px-4 font-bold text-slate-700 flex items-center gap-2">
-                             <svg className={`w-4 h-4 transition-transform ${expandedYears.has(y.year) ? 'rotate-90' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" /></svg>
-                             {y.year}º Ano
+                           <td className="py-4 px-4 font-bold text-slate-700 flex items-center gap-3">
+                             <div className={`w-6 h-6 rounded-full flex items-center justify-center transition-colors ${expandedYears.has(y.year) ? 'bg-blue-600 text-white' : 'bg-slate-200 text-slate-500 group-hover:bg-blue-100 group-hover:text-blue-600'}`}>
+                               <svg className={`w-3.5 h-3.5 transition-transform ${expandedYears.has(y.year) ? 'rotate-90' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M9 5l7 7-7 7" /></svg>
+                             </div>
+                             <span className="whitespace-nowrap">{y.year}º Ano</span>
                            </td>
                            <td className="py-4 px-4 text-slate-900 font-medium">~ R$ {formatCurrency(y.avgInstallment)}</td>
                            <td className="py-4 px-4 text-red-500 font-medium">R$ {formatCurrency(y.totalInterest)}</td>
-                           <td className="py-4 px-4 text-emerald-600 font-medium">R$ {formatCurrency(y.totalPrincipal + y.totalExtra)}</td>
+                           <td className="py-4 px-4 text-emerald-600 font-medium">
+                             R$ {formatCurrency(y.totalPrincipal + y.totalExtra)}
+                             {y.totalExtra > 0 && <span className="ml-1.5 text-[9px] font-bold bg-emerald-100 text-emerald-700 px-1.5 py-0.5 rounded-full">+{formatCurrency(y.totalExtra)} extra</span>}
+                           </td>
                            <td className="py-4 px-4 text-slate-900 font-bold">R$ {formatCurrency(y.endBalance)}</td>
                          </tr>
                          
                          {expandedYears.has(y.year) && y.months.map((m) => (
-                           <tr key={`m-${m.month}`} className="bg-white/50 border-b border-slate-50 animate-in fade-in slide-in-from-left-2 duration-200">
-                             <td className="py-2.5 px-4 pl-10 text-[11px] font-bold text-slate-400 uppercase">Mês {m.month}</td>
-                             <td className="py-2.5 px-4 text-xs text-slate-600 font-medium">R$ {formatCurrency(m.interest + m.principal)}</td>
-                             <td className="py-2.5 px-4 text-xs text-red-400">R$ {formatCurrency(m.interest)}</td>
-                             <td className="py-2.5 px-4 text-xs text-emerald-500">
-                               R$ {formatCurrency(m.principal + m.extra)} 
-                               {m.extra > 0 && <span className="ml-1 text-[9px] bg-emerald-100 text-emerald-700 px-1 rounded">Extra</span>}
+                           <tr key={`m-${m.month}`} className="bg-white/40 border-b border-slate-50/60 animate-in fade-in slide-in-from-left-2 duration-200">
+                             <td className="py-2.5 px-4 pl-12 text-[10px] font-bold text-slate-400 uppercase flex items-center gap-2 relative">
+                               <div className="absolute left-6 top-0 bottom-0 w-0.5 bg-blue-100" />
+                               <div className="w-1.5 h-1.5 rounded-full bg-blue-200" />
+                               Mês {m.month}
                              </td>
-                             <td className="py-2.5 px-4 text-xs text-slate-500">R$ {formatCurrency(m.balance)}</td>
+                             <td className="py-2.5 px-4 text-[13px] text-slate-600 font-medium">R$ {formatCurrency(m.interest + m.principal)}</td>
+                             <td className="py-2.5 px-4 text-[13px] text-red-400">R$ {formatCurrency(m.interest)}</td>
+                             <td className="py-2.5 px-4 text-[13px] text-emerald-500 flex items-center gap-1.5">
+                               R$ {formatCurrency(m.principal + m.extra)} 
+                               {m.extra > 0 && (
+                                 <div className="group relative">
+                                    <span className="cursor-help bg-emerald-100 text-emerald-700 px-1.5 py-0.5 rounded text-[9px] font-black uppercase">Extra</span>
+                                    <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:block bg-slate-800 text-white text-[9px] px-2 py-1 rounded whitespace-nowrap">
+                                      Aporte Adicional: R$ {formatCurrency(m.extra)}
+                                    </div>
+                                 </div>
+                               )}
+                             </td>
+                             <td className="py-2.5 px-4 text-[13px] text-slate-400 italic">R$ {formatCurrency(m.balance)}</td>
                            </tr>
                          ))}
                        </React.Fragment>
@@ -442,20 +478,20 @@ const App: React.FC = () => {
              )}
              
              {!showYearly && (
-               <div className="flex gap-4 items-center p-4 bg-slate-50 rounded-xl border border-slate-100">
+               <div className="flex gap-4 items-center p-5 bg-slate-50 rounded-2xl border border-slate-100">
                   <div className="flex-1">
-                    <p className="text-[10px] text-slate-400 font-bold uppercase">Primeira Parcela</p>
-                    <p className="text-lg font-bold text-slate-900">R$ {formatCurrency(results.firstInstallment)}</p>
+                    <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Primeira Parcela</p>
+                    <p className="text-xl font-bold text-slate-900">R$ {formatCurrency(results.firstInstallment)}</p>
                   </div>
-                  <div className="w-px h-8 bg-slate-200" />
+                  <div className="w-px h-10 bg-slate-200" />
                   <div className="flex-1">
-                    <p className="text-[10px] text-slate-400 font-bold uppercase">Última Parcela</p>
-                    <p className="text-lg font-bold text-slate-900">R$ {formatCurrency(results.lastInstallment)}</p>
+                    <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Última Parcela</p>
+                    <p className="text-xl font-bold text-slate-900">R$ {formatCurrency(results.lastInstallment)}</p>
                   </div>
-                  <div className="w-px h-8 bg-slate-200" />
+                  <div className="w-px h-10 bg-slate-200" />
                   <div className="flex-1">
-                    <p className="text-[10px] text-slate-400 font-bold uppercase">Redução Média</p>
-                    <p className="text-lg font-bold text-emerald-600">-{(((results.firstInstallment - results.lastInstallment) / results.firstInstallment) * 100).toFixed(1)}%</p>
+                    <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Redução Total</p>
+                    <p className="text-xl font-bold text-emerald-600">-{(((results.firstInstallment - results.lastInstallment) / results.firstInstallment) * 100).toFixed(1)}%</p>
                   </div>
                </div>
              )}
