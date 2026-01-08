@@ -27,6 +27,17 @@ export function calculateMonthlyRate(loan: number, installment: number, months: 
 }
 
 /**
+ * Calculates the SAC monthly rate based on the first installment
+ * Formula: Installment1 = (Loan / Months) + (Loan * Rate)
+ * Rate = (Installment1 - (Loan / Months)) / Loan
+ */
+export function calculateSACRate(loan: number, firstInstallment: number, months: number): number {
+  const principalAmortization = loan / months;
+  const rate = (firstInstallment - principalAmortization) / loan;
+  return Math.max(0, rate);
+}
+
+/**
  * Calculates the installment based on loan, monthly rate and months (PMT - relevant for PRICE)
  */
 export function calculateInstallment(loan: number, monthlyRate: number, months: number): number {

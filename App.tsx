@@ -1,7 +1,7 @@
 
 import React, { useState, useMemo } from 'react';
 import { CalculationInputs, CalculationResults, ExtraAmortization, AmortizationFrequency, AmortizationSystem, AmortizationEntry } from './types';
-import { calculateMonthlyRate, calculateInstallment, simulateFinancing } from './utils/calculations';
+import { calculateMonthlyRate, calculateInstallment, simulateFinancing, calculateSACRate } from './utils/calculations';
 import { analyzeFinancing } from './services/geminiService';
 import { Card } from './components/Card';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
@@ -69,9 +69,19 @@ const App: React.FC = () => {
 
     if (inputs.lastEdited === 'rate') {
       mRate = Math.pow(1 + (inputs.annualInterestRate / 100), 1 / 12) - 1;
-      installment = calculateInstallment(loan, mRate, originalMonths);
+      if (inputs.amortizationSystem === 'PRICE') {
+        installment = calculateInstallment(loan, mRate, originalMonths);
+      } else {
+        // Para o SAC, o sistema descobre a parcela 1 automaticamente no simulateFinancing
+        installment = (loan / originalMonths) + (loan * mRate);
+      }
     } else {
-      mRate = calculateMonthlyRate(loan, inputs.monthlyInstallment, originalMonths);
+      // O usuário editou a parcela, precisamos descobrir a taxa
+      if (inputs.amortizationSystem === 'PRICE') {
+        mRate = calculateMonthlyRate(loan, inputs.monthlyInstallment, originalMonths);
+      } else {
+        mRate = calculateSACRate(loan, inputs.monthlyInstallment, originalMonths);
+      }
     }
 
     const original = simulateFinancing(loan, mRate, installment, originalMonths, inputs.amortizationSystem, []);
@@ -136,17 +146,29 @@ const App: React.FC = () => {
   }, [simulationData]);
 
   const currentInstallmentDisplay = useMemo(() => {
+    if (inputs.lastEdited === 'installment') return inputs.monthlyInstallment;
+    
+    const loan = inputs.propertyValue - inputs.downPayment;
+    const mRate = Math.pow(1 + (inputs.annualInterestRate / 100), 1 / 12) - 1;
+    
     if (inputs.amortizationSystem === 'PRICE') {
-      return inputs.lastEdited === 'rate' 
-        ? calculateInstallment(inputs.propertyValue - inputs.downPayment, Math.pow(1 + (inputs.annualInterestRate / 100), 1 / 12) - 1, inputs.termInMonths)
-        : inputs.monthlyInstallment;
+      return calculateInstallment(loan, mRate, inputs.termInMonths);
     }
-    return results.firstInstallment;
-  }, [inputs, results.firstInstallment]);
+    return (loan / inputs.termInMonths) + (loan * mRate);
+  }, [inputs]);
 
-  const currentAnnualRate = inputs.lastEdited === 'installment' && inputs.amortizationSystem === 'PRICE'
-    ? (Math.pow(1 + calculateMonthlyRate(inputs.propertyValue - inputs.downPayment, inputs.monthlyInstallment, inputs.termInMonths), 12) - 1) * 100
-    : inputs.annualInterestRate;
+  const currentAnnualRate = useMemo(() => {
+     if (inputs.lastEdited === 'rate') return inputs.annualInterestRate;
+     
+     const loan = inputs.propertyValue - inputs.downPayment;
+     let mRate = 0;
+     if (inputs.amortizationSystem === 'PRICE') {
+       mRate = calculateMonthlyRate(loan, inputs.monthlyInstallment, inputs.termInMonths);
+     } else {
+       mRate = calculateSACRate(loan, inputs.monthlyInstallment, inputs.termInMonths);
+     }
+     return (Math.pow(1 + mRate, 12) - 1) * 100;
+  }, [inputs]);
 
   const handleCurrencyChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -272,11 +294,11 @@ const App: React.FC = () => {
               <div className="grid grid-cols-2 gap-3 pt-2">
                 <div className="space-y-1">
                   <label className="text-[10px] font-bold text-slate-500 uppercase">{inputs.amortizationSystem === 'SAC' ? '1ª Parcela (Ref)' : 'Parcela Fixa'}</label>
-                  <input type="text" inputMode="numeric" name="monthlyInstallment" disabled={inputs.amortizationSystem === 'SAC' && inputs.lastEdited === 'rate'} value={formatCurrency(currentInstallmentDisplay)} onChange={handleCurrencyChange} className={`w-full px-3 py-2 border rounded-lg text-sm font-bold text-slate-900 ${inputs.lastEdited === 'installment' ? 'border-blue-500 bg-white' : 'border-slate-200 bg-slate-50 disabled:opacity-70'}`} />
+                  <input type="text" inputMode="numeric" name="monthlyInstallment" value={formatCurrency(currentInstallmentDisplay)} onChange={handleCurrencyChange} className={`w-full px-3 py-2 border rounded-lg text-sm font-bold text-slate-900 ${inputs.lastEdited === 'installment' ? 'border-blue-500 bg-white shadow-sm shadow-blue-50' : 'border-slate-200 bg-slate-50 hover:bg-white transition-colors'}`} />
                 </div>
                 <div className="space-y-1">
                   <label className="text-[10px] font-bold text-slate-500 uppercase">Juros (%)</label>
-                  <input type="text" inputMode="numeric" name="annualInterestRate" value={formatRate(currentAnnualRate)} onChange={handleRateChange} className={`w-full px-3 py-2 border rounded-lg text-sm font-bold text-slate-900 ${inputs.lastEdited === 'rate' ? 'border-blue-500 bg-white' : 'border-slate-200 bg-slate-50'}`} />
+                  <input type="text" inputMode="numeric" name="annualInterestRate" value={formatRate(currentAnnualRate)} onChange={handleRateChange} className={`w-full px-3 py-2 border rounded-lg text-sm font-bold text-slate-900 ${inputs.lastEdited === 'rate' ? 'border-blue-500 bg-white shadow-sm shadow-blue-50' : 'border-slate-200 bg-slate-50 hover:bg-white transition-colors'}`} />
                 </div>
               </div>
 
@@ -368,7 +390,11 @@ const App: React.FC = () => {
                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
                     <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 12, fontWeight: 600, fill: '#64748b' }} />
                     <YAxis hide />
-                    <Tooltip cursor={{ fill: 'transparent' }} formatter={(val: number) => `R$ ${formatCurrency(val)}`} contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }} />
+                    <Tooltip 
+                      cursor={{ fill: 'transparent' }} 
+                      formatter={(value: number) => [`R$ ${formatCurrency(value)}`, 'Valor'] as [string, string]}
+                      contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }} 
+                    />
                     <Bar dataKey="valor" radius={[8, 8, 0, 0]} barSize={hasExtra ? 60 : 120}>
                       {chartData.map((entry, index) => <Cell key={index} fill={entry.fill} />)}
                     </Bar>
