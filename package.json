@@ -1,5 +1,5 @@
-
 {
+  "homepage": "http://gbuenor73.github.io/calculadora-financiamento",
   "name": "imobijuros-calc",
   "private": true,
   "version": "1.0.0",
@@ -8,6 +8,7 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview",
+    "predeploy": "npm run build",
     "deploy": "gh-pages -d dist"
   },
   "dependencies": {
