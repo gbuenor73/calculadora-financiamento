@@ -72,11 +72,9 @@ const App: React.FC = () => {
       if (inputs.amortizationSystem === 'PRICE') {
         installment = calculateInstallment(loan, mRate, originalMonths);
       } else {
-        // Para o SAC, o sistema descobre a parcela 1 automaticamente no simulateFinancing
         installment = (loan / originalMonths) + (loan * mRate);
       }
     } else {
-      // O usuário editou a parcela, precisamos descobrir a taxa
       if (inputs.amortizationSystem === 'PRICE') {
         mRate = calculateMonthlyRate(loan, inputs.monthlyInstallment, originalMonths);
       } else {
@@ -392,7 +390,7 @@ const App: React.FC = () => {
                     <YAxis hide />
                     <Tooltip 
                       cursor={{ fill: 'transparent' }} 
-                      formatter={(value: number) => [`R$ ${formatCurrency(value)}`, 'Valor'] as [string, string]}
+                      formatter={(value: any) => [`R$ ${formatCurrency(Number(value || 0))}`, 'Valor']}
                       contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }} 
                     />
                     <Bar dataKey="valor" radius={[8, 8, 0, 0]} barSize={hasExtra ? 60 : 120}>
