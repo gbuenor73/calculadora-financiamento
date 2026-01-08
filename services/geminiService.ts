@@ -3,7 +3,10 @@ import { GoogleGenAI } from "@google/genai";
 import { CalculationInputs, CalculationResults } from "../types";
 
 export async function analyzeFinancing(inputs: CalculationInputs, results: CalculationResults) {
-  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+  // O Vite substituirá process.env.API_KEY durante o build, 
+  // mas o TS precisa saber que ele existe.
+  const apiKey = (process.env as any).API_KEY || "";
+  const ai = new GoogleGenAI({ apiKey });
   
   const amortDetails = inputs.extraAmortizations.map(a => 
     `- R$ ${a.amount.toLocaleString('pt-BR')} (${a.frequency === 'monthly' ? 'Mensal' : a.frequency === 'yearly' ? 'Anual' : 'Único'}, iniciando no mês ${a.startMonth})`
