@@ -1,12 +1,15 @@
+<h1>Simulação de Financiamento Imobiliário no Brasil</h1>
+Projeto criado usando Google AI Studo
+
+Acesso a pagina no github e confira o resultado:
+https://gbuenor73.github.io/calculadora-financiamento/
+
+
+
+
 <div align="center">
 <img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
 </div>
-
-# Run and deploy your AI Studio app
-
-This contains everything you need to run your app locally.
-
-View your app in AI Studio: https://ai.studio/apps/drive/1Uw8kjShB7UsB23e87RSI7b5Al02V2ph5
 
 ## Run Locally
 
