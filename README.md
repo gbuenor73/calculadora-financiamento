@@ -2,7 +2,7 @@
 Projeto criado usando Google AI Studo
 
 Acesso a pagina no github e confira o resultado:
-https://gbuenor73.github.io/calculadora-financiamento/
+https://gbuenor73-calculadora-financiamento.vercel.com
 
 
 
