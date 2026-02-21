@@ -22,7 +22,7 @@ const App: React.FC = () => {
     downPayment: 100000,
     monthlyInstallment: 4500,
     annualInterestRate: 10.5,
-    termInMonths: 360, 
+    termInMonths: 360,
     amortizationSystem: 'SAC',
     extraAmortizations: [],
     lastEdited: 'rate'
@@ -61,7 +61,7 @@ const App: React.FC = () => {
   const simulationData = useMemo(() => {
     const loan = inputs.propertyValue - inputs.downPayment;
     const originalMonths = inputs.termInMonths;
-    
+
     if (loan <= 0 || originalMonths <= 0) return null;
 
     let mRate = 0;
@@ -90,8 +90,8 @@ const App: React.FC = () => {
 
   const results = useMemo((): CalculationResults => {
     if (!simulationData) {
-      return { 
-        loanAmount: 0, monthlyInterestRate: 0, annualInterestRate: 0, 
+      return {
+        loanAmount: 0, monthlyInterestRate: 0, annualInterestRate: 0,
         totalPaid: 0, totalInterest: 0, isValid: false,
         optimizedMonths: 0, optimizedTotalInterest: 0, optimizedTotalPaid: 0, interestSavings: 0, monthsSaved: 0,
         firstInstallment: 0, lastInstallment: 0
@@ -122,14 +122,14 @@ const App: React.FC = () => {
     if (!simulationData) return [];
     const history = simulationData.optimized.history;
     const evolution: YearlyEvolution[] = [];
-    
+
     for (let i = 0; i < history.length; i += 12) {
       const chunk = history.slice(i, i + 12);
       const yearTotalInterest = chunk.reduce((sum, m) => sum + m.interest, 0);
       const yearTotalPrincipal = chunk.reduce((sum, m) => sum + m.principal, 0);
       const yearTotalExtra = chunk.reduce((sum, m) => sum + m.extra, 0);
       const yearAvgInstallment = chunk.reduce((sum, m) => sum + (m.interest + m.principal), 0) / chunk.length;
-      
+
       evolution.push({
         year: Math.floor(i / 12) + 1,
         totalInterest: yearTotalInterest,
@@ -145,10 +145,10 @@ const App: React.FC = () => {
 
   const currentInstallmentDisplay = useMemo(() => {
     if (inputs.lastEdited === 'installment') return inputs.monthlyInstallment;
-    
+
     const loan = inputs.propertyValue - inputs.downPayment;
     const mRate = Math.pow(1 + (inputs.annualInterestRate / 100), 1 / 12) - 1;
-    
+
     if (inputs.amortizationSystem === 'PRICE') {
       return calculateInstallment(loan, mRate, inputs.termInMonths);
     }
@@ -156,16 +156,16 @@ const App: React.FC = () => {
   }, [inputs]);
 
   const currentAnnualRate = useMemo(() => {
-     if (inputs.lastEdited === 'rate') return inputs.annualInterestRate;
-     
-     const loan = inputs.propertyValue - inputs.downPayment;
-     let mRate = 0;
-     if (inputs.amortizationSystem === 'PRICE') {
-       mRate = calculateMonthlyRate(loan, inputs.monthlyInstallment, inputs.termInMonths);
-     } else {
-       mRate = calculateSACRate(loan, inputs.monthlyInstallment, inputs.termInMonths);
-     }
-     return (Math.pow(1 + mRate, 12) - 1) * 100;
+    if (inputs.lastEdited === 'rate') return inputs.annualInterestRate;
+
+    const loan = inputs.propertyValue - inputs.downPayment;
+    let mRate = 0;
+    if (inputs.amortizationSystem === 'PRICE') {
+      mRate = calculateMonthlyRate(loan, inputs.monthlyInstallment, inputs.termInMonths);
+    } else {
+      mRate = calculateSACRate(loan, inputs.monthlyInstallment, inputs.termInMonths);
+    }
+    return (Math.pow(1 + mRate, 12) - 1) * 100;
   }, [inputs]);
 
   const handleCurrencyChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -185,25 +185,33 @@ const App: React.FC = () => {
   };
 
   const updateAmortization = (id: string, updates: Partial<ExtraAmortization>) => {
-    setInputs(prev => ({
-      ...prev,
-      extraAmortizations: prev.extraAmortizations.map(a => {
-        if (a.id === id) {
-          let updated = { ...a, ...updates };
-          if (updated.frequency === 'yearly' && updated.startMonth > 12) updated.startMonth = 12;
-          else if (updated.frequency === 'once' && updated.startMonth > prev.termInMonths) updated.startMonth = prev.termInMonths;
-          return updated;
-        }
-        return a;
-      })
-    }));
+    setInputs(prev => {
+      const loanBalance = Math.max(0, prev.propertyValue - prev.downPayment);
+      return {
+        ...prev,
+        extraAmortizations: prev.extraAmortizations.map(a => {
+          if (a.id === id) {
+            let updated = { ...a, ...updates };
+            if (updated.amount > loanBalance) updated.amount = loanBalance;
+            if (updated.frequency === 'yearly' && updated.startMonth > 12) updated.startMonth = 12;
+            else if (updated.frequency === 'once' && updated.startMonth > prev.termInMonths) updated.startMonth = prev.termInMonths;
+            return updated;
+          }
+          return a;
+        })
+      };
+    });
   };
 
   const addAmortization = () => {
-    setInputs(prev => ({
-      ...prev,
-      extraAmortizations: [...prev.extraAmortizations, { id: Math.random().toString(36).substr(2, 9), amount: 500, frequency: 'monthly', startMonth: 1 }]
-    }));
+    setInputs(prev => {
+      const loanBalance = Math.max(0, prev.propertyValue - prev.downPayment);
+      const defaultAmount = Math.min(500, loanBalance);
+      return {
+        ...prev,
+        extraAmortizations: [...prev.extraAmortizations, { id: Math.random().toString(36).substr(2, 9), amount: defaultAmount, frequency: 'monthly', startMonth: 1 }]
+      };
+    });
   };
 
   const getAiInsight = async () => {
@@ -221,14 +229,14 @@ const App: React.FC = () => {
   };
 
   const hasExtra = inputs.extraAmortizations.length > 0;
-  const chartData = hasExtra 
+  const chartData = hasExtra
     ? [
-        { name: 'Custo Original', valor: results.totalInterest, fill: '#cbd5e1' },
-        { name: 'Com Amortização', valor: results.optimizedTotalInterest, fill: '#ef4444' },
-      ]
+      { name: 'Custo Original', valor: results.totalInterest, fill: '#cbd5e1' },
+      { name: 'Com Amortização', valor: results.optimizedTotalInterest, fill: '#ef4444' },
+    ]
     : [
-        { name: 'Juros Totais', valor: results.totalInterest, fill: '#64748b' }
-      ];
+      { name: 'Juros Totais', valor: results.totalInterest, fill: '#64748b' }
+    ];
 
   const yearsToExpand = yearlyEvolution.map(y => y.year);
   const allExpanded = expandedYears.size === yearlyEvolution.length && yearlyEvolution.length > 0;
@@ -246,7 +254,7 @@ const App: React.FC = () => {
               <p className="text-xs text-slate-500 font-medium">Simulador de Amortização Inteligente</p>
             </div>
           </div>
-          <button 
+          <button
             onClick={getAiInsight}
             disabled={loadingAi || !results.isValid}
             className="md:flex items-center gap-2 bg-slate-900 text-white px-4 py-2 rounded-lg font-medium hover:bg-slate-800 transition-colors disabled:opacity-50"
@@ -289,15 +297,33 @@ const App: React.FC = () => {
                 {isInvalidDownPayment && <p className="text-[10px] font-bold text-red-600 mt-1 uppercase animate-pulse">O valor do imóvel deve ser maior que a entrada</p>}
               </div>
 
-              <div className="grid grid-cols-2 gap-3 pt-2">
-                <div className="space-y-1">
-                  <label className="text-[10px] font-bold text-slate-500 uppercase">{inputs.amortizationSystem === 'SAC' ? '1ª Parcela (Ref)' : 'Parcela Fixa'}</label>
-                  <input type="text" inputMode="numeric" name="monthlyInstallment" value={formatCurrency(currentInstallmentDisplay)} onChange={handleCurrencyChange} className={`w-full px-3 py-2 border rounded-lg text-sm font-bold text-slate-900 ${inputs.lastEdited === 'installment' ? 'border-blue-500 bg-white shadow-sm shadow-blue-50' : 'border-slate-200 bg-slate-50 hover:bg-white transition-colors'}`} />
+              <div className="space-y-1">
+                <label className="text-xs font-bold text-slate-500 uppercase">Saldo a Financiar</label>
+                <div className="relative">
+                  <span className="absolute left-3 top-2.5 text-slate-400 text-sm">R$</span>
+                  <div className="w-full pl-9 pr-4 py-2 border border-slate-200 rounded-lg font-medium text-slate-900 bg-slate-100">{formatCurrency(Math.max(0, results.loanAmount))}</div>
                 </div>
-                <div className="space-y-1">
-                  <label className="text-[10px] font-bold text-slate-500 uppercase">Juros (%)</label>
-                  <input type="text" inputMode="numeric" name="annualInterestRate" value={formatRate(currentAnnualRate)} onChange={handleRateChange} className={`w-full px-3 py-2 border rounded-lg text-sm font-bold text-slate-900 ${inputs.lastEdited === 'rate' ? 'border-blue-500 bg-white shadow-sm shadow-blue-50' : 'border-slate-200 bg-slate-50 hover:bg-white transition-colors'}`} />
-                </div>
+              </div>
+
+              <div className="space-y-1 pt-2">
+                <label className="text-[10px] font-bold text-slate-500 uppercase">{inputs.amortizationSystem === 'SAC' ? '1ª Parcela (Ref)' : 'Parcela Fixa'}</label>
+                <input type="text" inputMode="numeric" name="monthlyInstallment" value={formatCurrency(currentInstallmentDisplay)} onChange={handleCurrencyChange} className={`w-full px-3 py-2 border rounded-lg text-sm font-bold text-slate-900 ${inputs.lastEdited === 'installment' ? 'border-blue-500 bg-white shadow-sm shadow-blue-50' : 'border-slate-200 bg-slate-50 hover:bg-white transition-colors'}`} />
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-[10px] font-bold text-slate-500 uppercase relative group cursor-help">
+                  Juros a.a. (%)
+                  <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 hidden group-hover:block bg-slate-800 text-white text-[9px] font-normal normal-case px-2 py-1 rounded whitespace-nowrap shadow-lg">a.a. = ao ano</span>
+                </label>
+                <input type="text" inputMode="numeric" name="annualInterestRate" value={formatRate(currentAnnualRate)} onChange={handleRateChange} className={`w-full px-3 py-2 border rounded-lg text-sm font-bold text-slate-900 ${inputs.lastEdited === 'rate' ? 'border-blue-500 bg-white shadow-sm shadow-blue-50' : 'border-slate-200 bg-slate-50 hover:bg-white transition-colors'}`} />
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-[10px] font-bold text-slate-500 uppercase relative group cursor-help">
+                  C.E.T Mensal
+                  <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 hidden group-hover:block bg-slate-800 text-white text-[9px] font-normal normal-case px-2 py-1 rounded whitespace-nowrap shadow-lg">C.E.T = Custo Efetivo Total</span>
+                </label>
+                <div className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm font-bold text-slate-900 bg-slate-100">{(results.monthlyInterestRate * 100).toFixed(2)}%</div>
               </div>
 
               <div className="space-y-1">
@@ -308,7 +334,7 @@ const App: React.FC = () => {
           </Card>
 
           <Card title="Plano de Amortização" className="border-emerald-100">
-             <div className="space-y-4">
+            <div className="space-y-4">
               {inputs.extraAmortizations.map((amort) => (
                 <div key={amort.id} className="p-4 bg-slate-50 rounded-xl border border-slate-200 space-y-3 relative group">
                   <button onClick={() => setInputs(p => ({ ...p, extraAmortizations: p.extraAmortizations.filter(a => a.id !== amort.id) }))} className="absolute top-2 right-2 text-slate-400 hover:text-red-500">
@@ -318,8 +344,9 @@ const App: React.FC = () => {
                     <label className="text-[10px] font-bold text-slate-400 uppercase">Valor do Aporte</label>
                     <div className="relative">
                       <span className="absolute left-2 top-1.5 text-slate-400 text-xs">R$</span>
-                      <input type="text" value={formatCurrency(amort.amount)} onChange={(e) => updateAmortization(amort.id, { amount: parseInt(e.target.value.replace(/\D/g, '') || '0', 10) / 100 })} className="w-full pl-7 pr-3 py-1.5 bg-white border border-slate-200 rounded-lg text-sm font-bold text-slate-900 outline-none" />
+                      <input type="text" value={formatCurrency(amort.amount)} onChange={(e) => updateAmortization(amort.id, { amount: parseInt(e.target.value.replace(/\D/g, '') || '0', 10) / 100 })} className={`w-full pl-7 pr-3 py-1.5 bg-white border rounded-lg text-sm font-bold text-slate-900 outline-none ${amort.amount >= results.loanAmount && results.loanAmount > 0 ? 'border-amber-400' : 'border-slate-200'}`} />
                     </div>
+                    {amort.amount >= results.loanAmount && results.loanAmount > 0 && <p className="text-[9px] font-bold text-amber-500 mt-0.5 uppercase">Não é possível abater um valor maior que o valor a financiar</p>}
                   </div>
                   <div className="grid grid-cols-2 gap-2">
                     <div className={`${amort.frequency === 'monthly' ? 'col-span-2' : 'col-span-1'} space-y-1`}>
@@ -346,10 +373,6 @@ const App: React.FC = () => {
             </div>
           </Card>
 
-          <Card className="bg-white text-slate-900 border-2 border-slate-200 shadow-sm">
-            <p className="text-slate-500 text-[10px] font-bold uppercase tracking-widest mb-1">Saldo a Financiar</p>
-            <h2 className="text-2xl font-bold">R$ {formatCurrency(Math.max(0, results.loanAmount))}</h2>
-          </Card>
         </div>
 
         <div className="lg:col-span-8 flex flex-col gap-6">
@@ -376,170 +399,163 @@ const App: React.FC = () => {
             </div>
           )}
 
-          <Card title={hasExtra ? "Impacto da Estratégia no Custo" : "Projeção de Juros Totais"}>
-            {isInvalidDownPayment ? (
-              <div className="h-64 flex items-center justify-center bg-slate-50 rounded-xl border-2 border-dashed border-slate-200">
-                <p className="text-slate-400 font-medium">Corrija os valores para ver a projeção</p>
-              </div>
-            ) : (
-              <div className="h-64 w-full">
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
-                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                    <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 12, fontWeight: 600, fill: '#64748b' }} />
-                    <YAxis hide />
-                    <Tooltip 
-                      cursor={{ fill: 'transparent' }} 
-                      formatter={(value: any) => [`R$ ${formatCurrency(Number(value || 0))}`, 'Valor']}
-                      contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }} 
-                    />
-                    <Bar dataKey="valor" radius={[8, 8, 0, 0]} barSize={hasExtra ? 60 : 120}>
-                      {chartData.map((entry, index) => <Cell key={index} fill={entry.fill} />)}
-                    </Bar>
-                  </BarChart>
-                </ResponsiveContainer>
-              </div>
-            )}
-            <div className="mt-4 flex justify-between items-end border-t border-slate-50 pt-4">
-              <div>
-                <p className="text-[10px] text-slate-400 font-bold uppercase">{hasExtra ? "Custo Original (Sem Amortização)" : "Total Pago ao Final"}</p>
-                <p className={`font-bold text-slate-900 ${hasExtra ? 'text-lg text-slate-400 line-through' : 'text-2xl text-slate-900'}`}>R$ {formatCurrency(results.totalPaid)}</p>
-              </div>
-              {hasExtra && !isInvalidDownPayment && (
-                <div className="text-right">
-                  <p className="text-[10px] text-emerald-600 font-bold uppercase">Novo Custo Total</p>
-                  <p className="text-2xl font-black text-emerald-700">R$ {formatCurrency(results.optimizedTotalPaid)}</p>
-                </div>
-              )}
-            </div>
-          </Card>
 
           <Card title="Evolução do Financiamento" className="overflow-hidden">
-             <div className="flex flex-col md:flex-row md:items-center justify-between mb-6 gap-3">
-               <p className="text-xs text-slate-500 font-medium max-w-sm">
-                 Acompanhe a amortização ano a ano. Clique em um ano para ver o detalhamento mensal ou use os controles ao lado.
-               </p>
-               <div className="flex items-center gap-2">
-                 <button 
-                   onClick={() => setShowYearly(!showYearly)}
-                   className="flex items-center gap-1.5 bg-slate-100 text-slate-700 px-3 py-1.5 rounded-lg text-xs font-bold hover:bg-slate-200 transition-colors"
-                 >
-                   {showYearly ? "Ver Resumo" : "Ver Tabela"}
-                 </button>
-                 {showYearly && (
-                   <button 
-                     onClick={() => toggleAllYears(yearsToExpand, !allExpanded)}
-                     className="bg-blue-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold hover:bg-blue-700 transition-colors"
-                   >
-                     {allExpanded ? "Recolher Todos" : "Expandir Todos"}
-                   </button>
-                 )}
-               </div>
-             </div>
-             
-             {showYearly && (
-               <div className="overflow-x-auto -mx-6 px-6 scrollbar-hide">
-                 <table className="w-full text-left border-collapse min-w-[700px]">
-                   <thead className="sticky top-0 z-10">
-                     <tr className="bg-slate-50 text-slate-400 text-[10px] font-bold uppercase tracking-wider">
-                       <th className="py-3 px-4 first:rounded-l-xl">Ano / Mês</th>
-                       <th className="py-3 px-4">Parcela Média</th>
-                       <th className="py-3 px-4">Juros no Período</th>
-                       <th className="py-3 px-4">Principal Amortizado</th>
-                       <th className="py-3 px-4 last:rounded-r-xl">Saldo Restante</th>
-                     </tr>
-                   </thead>
-                   <tbody className="text-sm">
-                     {yearlyEvolution.map((y) => (
-                       <React.Fragment key={y.year}>
-                         <tr 
-                            onClick={() => toggleYear(y.year)}
-                            className={`group cursor-pointer transition-all border-b border-slate-50 ${expandedYears.has(y.year) ? 'bg-blue-50/50' : 'hover:bg-slate-50/80'}`}
-                         >
-                           <td className="py-4 px-4 font-bold text-slate-700 flex items-center gap-3">
-                             <div className={`w-6 h-6 rounded-full flex items-center justify-center transition-colors ${expandedYears.has(y.year) ? 'bg-blue-600 text-white' : 'bg-slate-200 text-slate-500 group-hover:bg-blue-100 group-hover:text-blue-600'}`}>
-                               <svg className={`w-3.5 h-3.5 transition-transform ${expandedYears.has(y.year) ? 'rotate-90' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M9 5l7 7-7 7" /></svg>
-                             </div>
-                             <span className="whitespace-nowrap">{y.year}º Ano</span>
-                           </td>
-                           <td className="py-4 px-4 text-slate-900 font-medium">~ R$ {formatCurrency(y.avgInstallment)}</td>
-                           <td className="py-4 px-4 text-red-500 font-medium">R$ {formatCurrency(y.totalInterest)}</td>
-                           <td className="py-4 px-4 text-emerald-600 font-medium">
-                             R$ {formatCurrency(y.totalPrincipal + y.totalExtra)}
-                             {y.totalExtra > 0 && <span className="ml-1.5 text-[9px] font-bold bg-emerald-100 text-emerald-700 px-1.5 py-0.5 rounded-full">+{formatCurrency(y.totalExtra)} extra</span>}
-                           </td>
-                           <td className="py-4 px-4 text-slate-900 font-bold">R$ {formatCurrency(y.endBalance)}</td>
-                         </tr>
-                         
-                         {expandedYears.has(y.year) && y.months.map((m) => (
-                           <tr key={`m-${m.month}`} className="bg-white/40 border-b border-slate-50/60 animate-in fade-in slide-in-from-left-2 duration-200">
-                             <td className="py-2.5 px-4 pl-12 text-[10px] font-bold text-slate-400 uppercase flex items-center gap-2 relative">
-                               <div className="absolute left-6 top-0 bottom-0 w-0.5 bg-blue-100" />
-                               <div className="w-1.5 h-1.5 rounded-full bg-blue-200" />
-                               Mês {m.month}
-                             </td>
-                             <td className="py-2.5 px-4 text-[13px] text-slate-600 font-medium">R$ {formatCurrency(m.interest + m.principal)}</td>
-                             <td className="py-2.5 px-4 text-[13px] text-red-400">R$ {formatCurrency(m.interest)}</td>
-                             <td className="py-2.5 px-4 text-[13px] text-emerald-500 flex items-center gap-1.5">
-                               R$ {formatCurrency(m.principal + m.extra)} 
-                               {m.extra > 0 && (
-                                 <div className="group relative">
-                                    <span className="cursor-help bg-emerald-100 text-emerald-700 px-1.5 py-0.5 rounded text-[9px] font-black uppercase">Extra</span>
-                                    <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:block bg-slate-800 text-white text-[9px] px-2 py-1 rounded whitespace-nowrap">
-                                      Aporte Adicional: R$ {formatCurrency(m.extra)}
-                                    </div>
-                                 </div>
-                               )}
-                             </td>
-                             <td className="py-2.5 px-4 text-[13px] text-slate-400 italic">R$ {formatCurrency(m.balance)}</td>
-                           </tr>
-                         ))}
-                       </React.Fragment>
-                     ))}
-                   </tbody>
-                 </table>
-               </div>
-             )}
-             
-             {!showYearly && (
-               <div className="flex gap-4 items-center p-5 bg-slate-50 rounded-2xl border border-slate-100">
-                  <div className="flex-1">
-                    <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Primeira Parcela</p>
-                    <p className="text-xl font-bold text-slate-900">R$ {formatCurrency(results.firstInstallment)}</p>
-                  </div>
-                  <div className="w-px h-10 bg-slate-200" />
-                  <div className="flex-1">
-                    <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Última Parcela</p>
-                    <p className="text-xl font-bold text-slate-900">R$ {formatCurrency(results.lastInstallment)}</p>
-                  </div>
-                  <div className="w-px h-10 bg-slate-200" />
-                  <div className="flex-1">
-                    <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Redução Total</p>
-                    <p className="text-xl font-bold text-emerald-600">-{(((results.firstInstallment - results.lastInstallment) / results.firstInstallment) * 100).toFixed(1)}%</p>
-                  </div>
-               </div>
-             )}
+            <div className="flex flex-col md:flex-row md:items-center justify-between mb-6 gap-3">
+              <p className="text-xs text-slate-500 font-medium max-w-sm">
+                Acompanhe a amortização ano a ano. Clique em um ano para ver o detalhamento mensal ou use os controles ao lado.
+              </p>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setShowYearly(!showYearly)}
+                  className="flex items-center gap-1.5 bg-slate-100 text-slate-700 px-3 py-1.5 rounded-lg text-xs font-bold hover:bg-slate-200 transition-colors"
+                >
+                  {showYearly ? "Ver Resumo" : "Ver Tabela"}
+                </button>
+                {showYearly && (
+                  <button
+                    onClick={() => toggleAllYears(yearsToExpand, !allExpanded)}
+                    className="bg-blue-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold hover:bg-blue-700 transition-colors"
+                  >
+                    {allExpanded ? "Recolher Todos" : "Expandir Todos"}
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {showYearly && (
+              <div className="overflow-x-auto -mx-6 px-6 scrollbar-hide">
+                <table className="w-full text-left border-collapse min-w-[700px]">
+                  <thead className="sticky top-0 z-10">
+                    <tr className="bg-slate-50 text-slate-400 text-[10px] font-bold uppercase tracking-wider">
+                      <th className="py-3 px-4 first:rounded-l-xl">Ano / Mês</th>
+                      <th className="py-3 px-4">Parcela Média</th>
+                      <th className="py-3 px-4">Juros no Período</th>
+                      <th className="py-3 px-4">Principal Amortizado</th>
+                      <th className="py-3 px-4 last:rounded-r-xl">Saldo Restante</th>
+                    </tr>
+                  </thead>
+                  <tbody className="text-sm">
+                    {yearlyEvolution.map((y) => (
+                      <React.Fragment key={y.year}>
+                        <tr
+                          onClick={() => toggleYear(y.year)}
+                          className={`group cursor-pointer transition-all border-b border-slate-50 ${expandedYears.has(y.year) ? 'bg-blue-50/50' : 'hover:bg-slate-50/80'}`}
+                        >
+                          <td className="py-4 px-4 font-bold text-slate-700 flex items-center gap-3">
+                            <div className={`w-6 h-6 rounded-full flex items-center justify-center transition-colors ${expandedYears.has(y.year) ? 'bg-blue-600 text-white' : 'bg-slate-200 text-slate-500 group-hover:bg-blue-100 group-hover:text-blue-600'}`}>
+                              <svg className={`w-3.5 h-3.5 transition-transform ${expandedYears.has(y.year) ? 'rotate-90' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M9 5l7 7-7 7" /></svg>
+                            </div>
+                            <span className="whitespace-nowrap">{y.year}º Ano</span>
+                          </td>
+                          <td className="py-4 px-4 text-slate-900 font-medium">~ R$ {formatCurrency(y.avgInstallment)}</td>
+                          <td className="py-4 px-4 text-red-500 font-medium">R$ {formatCurrency(y.totalInterest)}</td>
+                          <td className="py-4 px-4 text-emerald-600 font-medium">
+                            R$ {formatCurrency(y.totalPrincipal + y.totalExtra)}
+                            {y.totalExtra > 0 && <span className="ml-1.5 text-[9px] font-bold bg-emerald-100 text-emerald-700 px-1.5 py-0.5 rounded-full">+{formatCurrency(y.totalExtra)} extra</span>}
+                          </td>
+                          <td className="py-4 px-4 text-slate-900 font-bold">R$ {formatCurrency(y.endBalance)}</td>
+                        </tr>
+
+                        {expandedYears.has(y.year) && y.months.map((m) => (
+                          <tr key={`m-${m.month}`} className="bg-white/40 border-b border-slate-50/60 animate-in fade-in slide-in-from-left-2 duration-200">
+                            <td className="py-2.5 px-4 pl-12 text-[10px] font-bold text-slate-400 uppercase flex items-center gap-2 relative">
+                              <div className="absolute left-6 top-0 bottom-0 w-0.5 bg-blue-100" />
+                              <div className="w-1.5 h-1.5 rounded-full bg-blue-200" />
+                              Mês {m.month}
+                            </td>
+                            <td className="py-2.5 px-4 text-[13px] text-slate-600 font-medium">R$ {formatCurrency(m.interest + m.principal)}</td>
+                            <td className="py-2.5 px-4 text-[13px] text-red-400">R$ {formatCurrency(m.interest)}</td>
+                            <td className="py-2.5 px-4 text-[13px] text-emerald-500 flex items-center gap-1.5">
+                              R$ {formatCurrency(m.principal + m.extra)}
+                              {m.extra > 0 && (
+                                <div className="group relative">
+                                  <span className="cursor-help bg-emerald-100 text-emerald-700 px-1.5 py-0.5 rounded text-[9px] font-black uppercase">Extra</span>
+                                  <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:block bg-slate-800 text-white text-[9px] px-2 py-1 rounded whitespace-nowrap">
+                                    Aporte Adicional: R$ {formatCurrency(m.extra)}
+                                  </div>
+                                </div>
+                              )}
+                            </td>
+                            <td className="py-2.5 px-4 text-[13px] text-slate-400 italic">R$ {formatCurrency(m.balance)}</td>
+                          </tr>
+                        ))}
+                      </React.Fragment>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+
+            {!showYearly && (
+              <div className="flex gap-4 items-center p-5 bg-slate-50 rounded-2xl border border-slate-100">
+                <div className="flex-1">
+                  <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Primeira Parcela</p>
+                  <p className="text-xl font-bold text-slate-900">R$ {formatCurrency(results.firstInstallment)}</p>
+                </div>
+                <div className="w-px h-10 bg-slate-200" />
+                <div className="flex-1">
+                  <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Última Parcela</p>
+                  <p className="text-xl font-bold text-slate-900">R$ {formatCurrency(results.lastInstallment)}</p>
+                </div>
+                <div className="w-px h-10 bg-slate-200" />
+                <div className="flex-1">
+                  <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Redução Total</p>
+                  <p className="text-xl font-bold text-emerald-600">-{(((results.firstInstallment - results.lastInstallment) / results.firstInstallment) * 100).toFixed(1)}%</p>
+                </div>
+              </div>
+            )}
           </Card>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-             <Card className="flex flex-col items-center justify-center py-6 text-center">
-                <span className="text-slate-400 text-[10px] font-bold uppercase tracking-widest mb-1">C.E.T Mensal</span>
-                <div className="text-3xl font-black text-slate-800">{(results.monthlyInterestRate * 100).toFixed(2)}%</div>
-             </Card>
-             <Card className="flex flex-col items-center justify-center py-6 text-center">
-                <span className="text-slate-400 text-[10px] font-bold uppercase tracking-widest mb-1">C.E.T Anual</span>
-                <div className="text-3xl font-black text-slate-800">{(results.annualInterestRate * 100).toFixed(2)}%</div>
-             </Card>
-          </div>
+
+          {hasExtra && (
+            <Card title="Impacto da Estratégia no Custo">
+              {isInvalidDownPayment ? (
+                <div className="h-64 flex items-center justify-center bg-slate-50 rounded-xl border-2 border-dashed border-slate-200">
+                  <p className="text-slate-400 font-medium">Corrija os valores para ver a projeção</p>
+                </div>
+              ) : (
+                <div className="h-64 w-full">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                      <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 12, fontWeight: 600, fill: '#64748b' }} />
+                      <YAxis hide />
+                      <Tooltip
+                        cursor={{ fill: 'transparent' }}
+                        formatter={(value: any) => [`R$ ${formatCurrency(Number(value || 0))}`, 'Valor']}
+                        contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }}
+                      />
+                      <Bar dataKey="valor" radius={[8, 8, 0, 0]} barSize={60}>
+                        {chartData.map((entry, index) => <Cell key={index} fill={entry.fill} />)}
+                      </Bar>
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+              )}
+              <div className="mt-3 flex justify-between items-end border-t border-slate-50 pt-3 opacity-60">
+                <div>
+                  <p className="text-[9px] text-slate-300 font-medium uppercase">Custo original (sem amortização)</p>
+                  <p className="font-medium text-xs text-slate-300 line-through">R$ {formatCurrency(results.totalPaid)}</p>
+                </div>
+                {!isInvalidDownPayment && (
+                  <div className="text-right">
+                    <p className="text-[9px] text-emerald-400 font-medium uppercase">Novo custo total</p>
+                    <p className="text-sm font-semibold text-emerald-500">R$ {formatCurrency(results.optimizedTotalPaid)}</p>
+                  </div>
+                )}
+              </div>
+            </Card>
+          )}
 
           {(aiAnalysis || loadingAi) && !isInvalidDownPayment && (
             <Card title="Análise Estratégica da IA" className="bg-slate-50 border-slate-200">
-               {loadingAi ? (
+              {loadingAi ? (
                 <div className="flex flex-col items-center py-10 gap-3">
                   <div className="w-10 h-10 border-4 border-blue-600 border-t-transparent rounded-full animate-spin" />
                   <p className="text-slate-500 font-medium animate-pulse">Cruzando dados com o mercado...</p>
                 </div>
-               ) : (
+              ) : (
                 <div className="prose prose-slate max-w-none text-slate-600 text-sm leading-relaxed">
                   {aiAnalysis?.split('\n').map((line, i) => (
                     <p key={i} className="mb-2">
@@ -547,12 +563,12 @@ const App: React.FC = () => {
                     </p>
                   ))}
                 </div>
-               )}
+              )}
             </Card>
           )}
         </div>
       </main>
-      
+
       <footer className="max-w-6xl mx-auto px-4 mt-8 pb-10 text-center text-slate-400 text-[10px] font-medium uppercase tracking-widest">
         <p>Desenvolvido para fins educacionais de planejamento financeiro.</p>
       </footer>
