@@ -7,18 +7,18 @@ import { ExtraAmortization, AmortizationSystem, AmortizationEntry } from "../typ
 export function calculateMonthlyRate(loan: number, installment: number, months: number): number {
   if (installment * months <= loan) return 0;
 
-  let i = 0.01; 
+  let i = 0.01;
   const tolerance = 1e-10;
   const maxIterations = 100;
 
   for (let k = 0; k < maxIterations; k++) {
     const powN = Math.pow(1 + i, months);
     if (powN === Infinity) return 0;
-    
+
     const powNMinus1 = Math.pow(1 + i, months - 1);
     const f = loan * i * powN / (powN - 1) - installment;
     const df = loan * (powN * (powN - 1) + i * months * powNMinus1 * (powN - 1) - i * powN * months * powNMinus1) / Math.pow(powN - 1, 2);
-    
+
     const newI = i - f / df;
     if (Math.abs(newI - i) < tolerance) return newI;
     i = newI;
@@ -50,9 +50,9 @@ export function calculateInstallment(loan: number, monthlyRate: number, months: 
  * Simulates the entire financing lifecycle with SAC or PRICE and multiple extra amortizations
  */
 export function simulateFinancing(
-  loan: number, 
-  monthlyRate: number, 
-  regularInstallment: number, 
+  loan: number,
+  monthlyRate: number,
+  regularInstallment: number,
   maxMonths: number,
   system: AmortizationSystem,
   extraAmortizations: ExtraAmortization[]
@@ -67,10 +67,10 @@ export function simulateFinancing(
 
   const fixedPrincipalSAC = system === 'SAC' ? loan / maxMonths : 0;
 
-  while (balance > 0.01 && monthsCount < 1200) { 
+  while (balance > 0.01 && monthsCount < 1200) {
     monthsCount++;
     const interest = balance * monthlyRate;
-    
+
     let principalFromRegular = 0;
     let currentInstallment = 0;
 
@@ -97,10 +97,10 @@ export function simulateFinancing(
     }
 
     const maxExtraPossible = Math.min(balance - principalFromRegular, totalExtraThisMonth);
-    
+
     totalInterest += interest;
     totalPaid += (interest + principalFromRegular + maxExtraPossible);
-    
+
     history.push({
       month: monthsCount,
       interest: interest,
