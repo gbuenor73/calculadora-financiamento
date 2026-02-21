@@ -7,8 +7,8 @@ export async function analyzeFinancing(inputs: CalculationInputs, results: Calcu
   // mas o TS precisa saber que ele existe.
   const apiKey = (process.env as any).API_KEY || "";
   const ai = new GoogleGenAI({ apiKey });
-  
-  const amortDetails = inputs.extraAmortizations.map(a => 
+
+  const amortDetails = inputs.extraAmortizations.map(a =>
     `- R$ ${a.amount.toLocaleString('pt-BR')} (${a.frequency === 'monthly' ? 'Mensal' : a.frequency === 'yearly' ? 'Anual' : 'Único'}, iniciando no mês ${a.startMonth})`
   ).join('\n');
 
@@ -44,6 +44,6 @@ export async function analyzeFinancing(inputs: CalculationInputs, results: Calcu
     return response.text;
   } catch (error) {
     console.error("Gemini Error:", error);
-    return "Ocorreu um erro ao gerar os insights. Tente novamente.";
+    return "Funcionalidade disponível em breve.";
   }
 }
