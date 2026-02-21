@@ -7,20 +7,59 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-node_modules
-dist
-dist-ssr
-*.local
+# Dependency directories
+node_modules/
+jspm_packages/
 
-# Editor directories and files
-.vscode/*
-!.vscode/extensions.json
-.idea
+# Build outputs
+dist/
+dist-ssr/
+build/
+bin/
+obj/
+out/
+.vercel
+.netlify
+
+# Unit test reports
+test-results/
+coverage/
+*.lcov
+.vitest-results
+
+# Environment variables (CRITICAL: Never commit these)
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+*.secret
+
+# OS metadata
 .DS_Store
+Thumbs.db
+desktop.ini
+
+# Editor/IDE directories
+.vscode/
+!.vscode/extensions.json
+.idea/
 *.suo
 *.ntvs*
 *.njsproj
 *.sln
 *.sw?
+.project
+.classpath
+.settings/
 
-package-lock.json
+# TypeScript
+*.tsbuildinfo
+
+# Build tools
+.vite/
+.turbo/
+.cache/
+
+# Optional: keep package-lock.json unless explicitly requested otherwise
+# package-lock.json

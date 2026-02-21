@@ -1,12 +1,22 @@
-
-import { defineConfig } from 'vite';
+import { defineConfig } from 'vitest/config';
 import react from '@vitejs/plugin-react';
+import path from 'path';
 
-// Substitua 'NOME_DO_REPOSITORIO' pelo nome do seu repo no GitHub
 export default defineConfig({
   plugins: [react()],
-  base: './', 
+  resolve: {
+    alias: {
+      '@': path.resolve(__dirname, './src'),
+    },
+  },
+  base: './',
   define: {
-    'process.env.API_KEY': JSON.stringify(process.env.API_KEY)
-  }
+    'process.env.API_KEY': JSON.stringify(process.env.API_KEY || process.env.VITE_GEMINI_API_KEY || process.env.GEMINI_API_KEY)
+  },
+  test: {
+    globals: true,
+    environment: 'jsdom',
+    setupFiles: './src/test/setup.ts',
+    include: ['src/**/*.{test,spec}.{ts,tsx}'],
+  },
 });

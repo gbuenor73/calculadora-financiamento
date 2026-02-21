@@ -16,75 +16,79 @@ O projeto foi iniciado originalmente no **Google AI Studio** e hoje evolui atrav
 ### 🌟 Destaques do Projeto
 
 - **💎 Interface Premium**: Design moderno baseado em *Glassmorphism*, com foco em clareza visual e hierarquia de informações.
-- **👔 Broker-Friendly**: Layout otimizado para corretores de imóveis, destacando o **tempo salvo** e a **economia de juros** para facilitar a negociação com clientes.
-- **🤖 Inteligência Artificial**: Relatórios estratégicos gerados pelo **Google Gemini** que analisam a competitividade das taxas e sugerem planos de amortização.
-- **📊 Visualização Dinâmica**: Alternância entre gráficos de barras interativos e tabelas detalhadas de evolução (anual/mensal).
-- **🚀 Simulador de Amortização**: Gerencie múltiplos aportes extras (mensais, anuais ou únicos) e veja o impacto instantâneo no prazo do financiamento.
+- **👔 Broker-Friendly**: Layout otimizado para corretores de imóveis, com ocultação estratégica do custo total (disponível sob hover sutil) para focar na viabilidade da parcela e nos benefícios da amortização.
+- **🤖 Inteligência Artificial**: Relatórios estratégicos gerados pelo **Google Gemini** (SDK 2.0) que analisam a competitividade das taxas e sugerem planos de quitação acelerada.
+- **📊 Visualização Dinâmica**: Alternância entre gráficos interativos e tabelas detalhadas de evolução (anual/mensal) com expansão inteligente.
+- **🚀 Simulador de Amortização**: Controle preciso de múltiplos aportes extras (mensais, anuais ou únicos) com impacto instantâneo no prazo e economia de juros.
 
 ### 🛠️ Funcionalidades Principais
 
-1. **Sistemas SAC e PRICE**: Alternância instantânea entre os principais sistemas de amortização do mercado brasileiro.
-2. **Cálculo de CET Real**: Transparência total no Custo Efetivo Total baseado na parcela informada.
-3. **Plano de Antecipação**: Área dedicada para estruturar o uso de bonificações, 13º salário ou FGTS para quitar o imóvel.
-4. **Resumo de Impacto**: Cards vibrantes que mostram anos de vida "recuperados" e milhares de reais economizados.
-5. **Insights Consultivos**: Análise de IA sobre o cenário atual do mercado e dicas psicológicas de economia.
+1. **Sistemas SAC e PRICE**: Alternância dinâmica com recálculo automático de taxas e parcelas.
+2. **Cálculo de CET Real**: Transparência total no Custo Efetivo Total baseado nos inputs do usuário.
+3. **Plano de Antecipação**: Área dedicada para estruturar o uso de bonificações ou FGTS para quitar o imóvel.
+4. **Resumo de Impacto**: Destaques vibrantes sobre anos de vida recuperados e capital economizado.
 
-### 🚀 Tecnologias Utilizadas
+### 🚀 Stack Tecnológica e Engenharia
 
-O projeto utiliza um stack moderno focado em performance e tipagem segura:
+O projeto segue as melhores práticas de desenvolvimento moderno:
 
-- **React 19**: O core da interface.
-- **TypeScript**: Garantia de integridade nos cálculos financeiros.
-- **Tailwind CSS**: Estilização rica com utilitários customizados para glassmorphism.
-- **Vite**: Build tool ultra-rápida.
-- **Recharts**: Renderização de gráficos de alta fidelidade.
-- **Google Gemini API**: Inteligência generativa para análise financeira.
+- **React 19**: Core da aplicação com uso intensivo de Hooks customizados.
+- **TypeScript**: Tipagem estrita para segurança em cálculos financeiros complexos.
+- **Vitest & React Testing Library**: Suíte robusta de testes unitários e de integração (TAAC).
+- **Tailwind CSS**: Design system baseado em utilitários com suporte a micro-interações.
+- **Google Gen AI SDK**: Integração de ponta com modelos Gemini.
+- **Vite**: Ambiente de build otimizado com **Path Aliasing** (`@/*`).
+
+### 🧪 Qualidade e Testes
+
+O sistema conta com cobertura de testes automatizados para garantir a precisão dos cálculos:
+
+```bash
+# Executar todos os testes
+npm test
+```
+
+- **Testes Unitários**: Validação dos motores matemáticos de amortização (SAC/PRICE).
+- **Testes de Aceitação (TAAC)**: Simulação de jornadas do usuário para garantir que a interface responda corretamente aos inputs.
 
 ### 💻 Instalação e Execução
 
-Para rodar o projeto localmente, siga os passos abaixo:
-
-1. **Clonar o repositório**
+1. **Clonar e Instalar**
    ```bash
    git clone https://github.com/gbuenor73/calculadora-financiamento.git
-   ```
-
-2. **Instalar as dependências**
-   ```bash
    npm install
    ```
 
-3. **Configurar a API do Gemini**
-   Crie um arquivo `.env.local` na raiz do projeto e adicione sua API Key:
+2. **Configurar API Key**
+   Crie um arquivo `.env.local`:
    ```env
-   API_KEY=sua_chave_aqui
+   API_KEY=sua_chave_do_google_ai_studio
    ```
 
-4. **Iniciar o servidor de desenvolvimento**
+3. **Rodar**
    ```bash
    npm run dev
    ```
 
-### 🚢 Deployment e Integração Contínua
+### 🚢 Deployment
 
-O projeto é deployado automaticamente via **Vercel** a cada push na branch `main`.
+Deploy automático via **Vercel** conectado à branch `main` do repositório:
+[github.com/gbuenor73/calculadora-financiamento](https://github.com/gbuenor73/calculadora-financiamento)
 
-- **Repositório Oficial**: [github.com/gbuenor73/calculadora-financiamento](https://github.com/gbuenor73/calculadora-financiamento)
-- **Ambiente de Produção**: Deploy contínuo via Vercel.
-
-### 📂 Estrutura de Pastas
+### 📂 Estrutura Modular
 
 ```text
-├── components/       # Componentes de UI (Card, Inputs, etc)
-├── services/         # Integração com Gemini API
-├── utils/            # Motores matemáticos (SAC, PRICE, Amortização)
-├── types.ts          # Definições de interfaces do domínio
-├── App.tsx           # Container principal e gestão de estado
-└── index.css         # Design System e utilitários Tailwind
+src/
+├── __tests__/        # Testes de aceitação (TAAC)
+├── components/       # Componentes divididos por contexto (Results, Sidebar, UI)
+├── hooks/            # useFinancing (Centralização da lógica de estado)
+├── services/         # API Service (Gemini)
+├── utils/            # Engines financeiras e formatadores
+└── types/            # Definições de interfaces globais
 ```
 
 ---
 
 <p align="center">
-  Desenvolvido para fins de planejamento financeiro estratégico e educação imobiliária. 💡
+  Desenvolvido com foco em precisão matemática e UX premium. 💡
 </p>
