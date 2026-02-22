@@ -1,5 +1,6 @@
 import React from 'react';
 import { useFinancing } from '@/hooks/useFinancing';
+import { useTheme } from '@/hooks/useTheme';
 import { Header } from '@/components/Layout/Header';
 import { Footer } from '@/components/Layout/Footer';
 import { ParamSidebar } from '@/components/Sidebar/ParamSidebar';
@@ -9,6 +10,7 @@ import { EvolutionProjection } from '@/components/Results/EvolutionProjection';
 import { IntelligenceReport } from '@/components/Results/IntelligenceReport';
 
 const App: React.FC = () => {
+  const { theme, toggleTheme } = useTheme();
   const {
     inputs,
     results,
@@ -44,11 +46,13 @@ const App: React.FC = () => {
   const hasExtra = inputs.extraAmortizations.length > 0;
 
   return (
-    <div className="min-h-screen bg-slate-50 selection:bg-blue-100 selection:text-blue-900">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 selection:bg-blue-100 dark:selection:bg-blue-900/40 selection:text-blue-900 dark:selection:text-blue-100 transition-colors duration-500">
       <Header
         onAiInsight={getAiInsight}
         loadingAi={loadingAi}
         isValid={results.isValid}
+        theme={theme}
+        toggleTheme={toggleTheme}
       />
 
       <main className="max-w-7xl mx-auto px-4 py-8 grid grid-cols-1 lg:grid-cols-12 gap-8">

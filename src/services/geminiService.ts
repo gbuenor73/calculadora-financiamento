@@ -6,7 +6,7 @@ export async function analyzeFinancing(inputs: CalculationInputs, results: Calcu
 
   if (!apiKey) {
     console.warn("Gemini API Key not found. Analysis will not be available.");
-    return "Configuração de IA pendente.";
+    return "Disponivel em breve.";
   }
 
   // Use the new Google DeepMind SDK pattern

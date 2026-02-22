@@ -11,9 +11,9 @@ export const IntelligenceReport: React.FC<IntelligenceReportProps> = ({ analysis
 
     return (
         <Card
-            title="Intelligence Report"
-            subtitle="Análise estratégica do seu cenário"
-            className="bg-slate-900 border-slate-800 text-white"
+            title="Lucidus Insight"
+            subtitle="Análise estratégica de clareza"
+            className="bg-slate-900 dark:bg-slate-950 border-slate-800 dark:border-blue-900/30 text-white transition-colors"
             icon={<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-5 h-5 text-blue-400"><path fillRule="evenodd" d="M15.312 11.424a5.5 5.5 0 0 1-9.201 2.466l-.312-.311h2.433a.75.75 0 0 0 0-1.5H3.989a.75.75 0 0 0-.75.75v4.242a.75.75 0 0 0 1.5 0v-2.43l.31.31a7 7 0 0 0 11.712-3.138.75.75 0 0 0-1.449-.39Zm1.23-6.39a.75.75 0 0 0-1.5 0v2.43l-.31-.31a7 7 0 0 0-11.712 3.138.75.75 0 0 0 1.449.39 5.5 5.5 0 0 1 9.201-2.466l.312.311h-2.433a.75.75 0 0 0 0 1.5H16.01a.75.75 0 0 0 .75-.75V3.75l.001-.002V5.034Z" clipRule="evenodd" /></svg>}
         >
             {loading ? (

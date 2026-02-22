@@ -54,19 +54,19 @@ export const ParamSidebar: React.FC<ParamSidebarProps> = ({
                         {isInvalidDownPayment && <p className="text-[10px] font-bold text-red-600 mt-1 uppercase animate-pulse">A entrada não pode superar o valor do imóvel</p>}
                     </div>
 
-                    <div className="flex items-center justify-between p-3 bg-blue-50/50 border border-blue-100 rounded-xl">
-                        <label className="text-[10px] font-black uppercase tracking-widest text-blue-400">Saldo a Financiar</label>
-                        <p className="text-sm font-black text-slate-900 tracking-tight">R$ {formatCurrency(Math.max(0, loanAmount))}</p>
+                    <div className="flex items-center justify-between p-3 bg-blue-50/50 dark:bg-blue-900/10 border border-blue-100 dark:border-blue-900/30 rounded-xl">
+                        <label className="text-[10px] font-black uppercase tracking-widest text-blue-400 dark:text-blue-500">Saldo a Financiar</label>
+                        <p className="text-sm font-black text-slate-900 dark:text-slate-100 tracking-tight">R$ {formatCurrency(Math.max(0, loanAmount))}</p>
                     </div>
 
                     <div className="space-y-3 pt-2">
-                        <label className="text-[10px] font-black uppercase tracking-widest text-slate-500">Sistema de Amortização</label>
-                        <div className="grid grid-cols-2 gap-2 p-1 bg-slate-100 rounded-xl">
+                        <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400">Sistema de Amortização</label>
+                        <div className="grid grid-cols-2 gap-2 p-1 bg-slate-100 dark:bg-slate-800 rounded-xl">
                             {['SAC', 'PRICE'].map(sys => (
                                 <button
                                     key={sys}
                                     onClick={() => onSystemChange(sys as AmortizationSystem)}
-                                    className={`py-2 text-[11px] font-black rounded-lg transition-all ${amortizationSystem === sys ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-500 hover:text-slate-800'}`}
+                                    className={`py-2 text-[11px] font-black rounded-lg transition-all ${amortizationSystem === sys ? 'bg-white dark:bg-slate-700 text-blue-600 dark:text-blue-400 shadow-sm' : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-300'}`}
                                 >
                                     {sys === 'SAC' ? 'SAC (Crescente)' : 'PRICE (Fixa)'}
                                 </button>
@@ -93,7 +93,7 @@ export const ParamSidebar: React.FC<ParamSidebarProps> = ({
                             max="480"
                             value={termInMonths}
                             onChange={(e) => onTermChange(parseInt(e.target.value, 10))}
-                            className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
+                            className="w-full h-2 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-blue-600"
                         />
                     </div>
 
@@ -112,7 +112,7 @@ export const ParamSidebar: React.FC<ParamSidebarProps> = ({
                         />
                     </div>
 
-                    <div className="flex items-center gap-2 p-3 bg-blue-50 rounded-lg text-blue-700">
+                    <div className="flex items-center gap-2 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg text-blue-700 dark:text-blue-400">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4 shrink-0"><path fillRule="evenodd" d="M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0Zm-7-4a1 1 0 1 1-2 0 1 1 0 0 1 2 0ZM9 9a.75.75 0 0 0 0 1.5h.253a.25.25 0 0 1 .244.304l-.459 2.066A1.75 1.75 0 0 0 10.747 15H11a.75.75 0 0 0 0-1.5h-.253a.25.25 0 0 1-.244-.304l.459-2.066A1.75 1.75 0 0 0 9.253 9H9Z" clipRule="evenodd" /></svg>
                         <span className="text-[10px] font-bold uppercase tracking-tight leading-none">C.E.T Mensal: {(mRate * 100).toFixed(2)}%</span>
                     </div>
