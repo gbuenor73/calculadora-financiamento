@@ -26,7 +26,7 @@ export const Footer: React.FC<FooterProps> = ({ optimizedTotalPaid, annualIntere
                     </div>
                 </div>
                 <div className="pt-6 border-t border-slate-100 dark:border-slate-800/60 w-full text-center">
-                    <p className="text-[9px] text-slate-400 dark:text-slate-600 font-bold uppercase tracking-[0.3em] leading-none">ImobiJuros © 2026 • Ferramenta de Planejamento Financeiro</p>
+                    <p className="text-[9px] text-slate-400 dark:text-slate-600 font-bold uppercase tracking-[0.3em] leading-none">Lucidus © 2026 • Ferramenta de Planejamento Financeiro</p>
                 </div>
             </div>
         </footer>
