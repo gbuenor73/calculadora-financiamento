@@ -33,6 +33,14 @@ const App: React.FC = () => {
     setShowYearly
   } = useFinancing();
 
+  const reportRef = React.useRef<HTMLDivElement>(null);
+
+  React.useEffect(() => {
+    if (loadingAi && reportRef.current) {
+      reportRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }, [loadingAi]);
+
   const hasExtra = inputs.extraAmortizations.length > 0;
 
   return (
@@ -92,10 +100,12 @@ const App: React.FC = () => {
             hasExtra={hasExtra}
           />
 
-          <IntelligenceReport
-            analysis={aiAnalysis}
-            loading={loadingAi}
-          />
+          <div ref={reportRef} className="scroll-mt-24">
+            <IntelligenceReport
+              analysis={aiAnalysis}
+              loading={loadingAi}
+            />
+          </div>
         </div>
       </main>
 
