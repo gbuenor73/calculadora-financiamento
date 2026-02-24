@@ -20,7 +20,7 @@ export const Header: React.FC<HeaderProps> = ({ onAiInsight, loadingAi, isValid,
                     </div>
                     <div>
                         <h1 className="text-xl font-black text-slate-900 dark:text-white tracking-tight leading-none gradient-text">Lucidus</h1>
-                        <p className="text-[10px] text-slate-500 dark:text-slate-400 font-bold uppercase tracking-widest mt-1">Clareza no seu financiamento</p>
+                        <p className="text-[10px] text-slate-500 dark:text-slate-400 font-bold uppercase tracking-widest mt-1">Clareza no seu Financiamento</p>
                     </div>
                 </div>
                 <div className="flex items-center gap-3">
