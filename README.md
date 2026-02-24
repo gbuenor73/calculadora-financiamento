@@ -16,7 +16,6 @@ O projeto foi iniciado originalmente no **Google AI Studio** e hoje evolui atrav
 ### 🌟 Destaques do Projeto
 
 - **💎 Interface Premium**: Design moderno baseado em *Glassmorphism*, com foco em clareza visual e hierarquia de informações.
-- **👔 Broker-Friendly**: Layout otimizado para corretores de imóveis, com ocultação estratégica do custo total (disponível sob hover sutil) para focar na viabilidade da parcela e nos benefícios da amortização.
 - **🤖 Inteligência Artificial**: Relatórios estratégicos gerados pelo **Google Gemini** (SDK 2.0) que analisam a competitividade das taxas e sugerem planos de quitação acelerada.
 - **📊 Visualização Dinâmica**: Alternância entre gráficos interativos e tabelas detalhadas de evolução (anual/mensal) com expansão inteligente.
 - **🚀 Simulador de Amortização**: Controle preciso de múltiplos aportes extras (mensais, anuais ou únicos) com impacto instantâneo no prazo e economia de juros.
