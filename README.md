@@ -1,14 +1,14 @@
-# ImobiJuros 🏠✨
+# Lucidus 🏠✨
 ## A Inteligência Estratégica para o seu Financiamento
 
-**ImobiJuros** é um simulador de financiamento imobiliário de ultra-performance, desenhado para transformar a complexidade bancária em uma estratégia clara de quitação.
+**Lucidus** é um simulador de financiamento imobiliário de ultra-performance, desenhado para transformar a complexidade bancária em uma estratégia clara de quitação.
 
 O projeto foi iniciado originalmente no **Google AI Studio** e hoje evolui através da precisão do **Antigravity**, unindo matemática financeira avançada e Inteligência Artificial para ajudar corretores e compradores a visualizarem o caminho mais rápido para a casa própria.
 
 ---
 
 <div align="center">
-  <img width="1200" alt="ImobiJuros Banner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
+  <img width="1200" alt="Lucidus Banner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
 </div>
 
 ---
