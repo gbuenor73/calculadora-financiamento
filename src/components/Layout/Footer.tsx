@@ -25,8 +25,14 @@ export const Footer: React.FC<FooterProps> = ({ optimizedTotalPaid, annualIntere
                         <p className="text-[10px] font-black text-slate-500 dark:text-slate-400">R$ {formatCurrency(optimizedTotalInterest)}</p>
                     </div>
                 </div>
-                <div className="pt-6 border-t border-slate-100 dark:border-slate-800/60 w-full text-center">
-                    <p className="text-[9px] text-slate-400 dark:text-slate-600 font-bold uppercase tracking-[0.3em] leading-none">Lucidus © 2026 • Ferramenta de Planejamento Financeiro</p>
+                <div className="pt-6 border-t border-slate-100 dark:border-slate-800/60 w-full flex flex-col items-center gap-4">
+                    <div className="flex items-center gap-6 opacity-60 hover:opacity-100 transition-opacity">
+                        <span className="text-[8px] font-bold text-slate-400 uppercase tracking-widest">Recomendações:</span>
+                        <a href="#" className="text-[10px] font-bold text-blue-600 dark:text-blue-400 hover:underline">Melhores Taxas</a>
+                        <a href="#" className="text-[10px] font-bold text-blue-600 dark:text-blue-400 hover:underline">Seguro Habitacional</a>
+                        <a href="#" className="text-[10px] font-bold text-blue-600 dark:text-blue-400 hover:underline">Consórcios</a>
+                    </div>
+                    <p className="text-[9px] text-slate-400 dark:text-slate-600 font-bold uppercase tracking-[0.3em] leading-none mt-2">Lucidus © 2026 • Ferramenta de Planejamento Financeiro</p>
                 </div>
             </div>
         </footer>
