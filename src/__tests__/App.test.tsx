@@ -22,7 +22,7 @@ vi.mock('@/services/geminiService', () => ({
 describe('App Component (Acceptance Tests)', () => {
     it('should render the application title', () => {
         render(<App />);
-        expect(screen.getByText('ImobiJuros')).toBeInTheDocument();
+        expect(screen.getByText('Lucidus')).toBeInTheDocument();
     });
 
     it('should allow changing the property value', () => {
