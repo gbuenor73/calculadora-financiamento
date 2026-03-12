@@ -69,6 +69,15 @@ npm test
    npm run dev
    ```
 
+### 💰 Monetização (AdSense)
+
+O projeto já conta com slots de anúncios estratégicos e não-intrusivos.
+Para ativar os anúncios do **Google AdSense**:
+1. No arquivo `index.html`, descomente a tag `<script>` do AdSense e substitua `ca-pub-XXXXXXXXXXXXX` pelo seu ID de cliente.
+2. No componente `src/components/ui/AdBanner.tsx`, você pode configurar as tags `<ins>` com o `data-ad-client` e `data-ad-slot` específicos para cada posição.
+
+---
+
 ### 🚢 Deployment
 
 Deploy automático via **Vercel** conectado à branch `main` do repositório:

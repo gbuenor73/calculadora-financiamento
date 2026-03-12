@@ -8,6 +8,7 @@ import { AmortizationSidebar } from '@/components/Sidebar/AmortizationSidebar';
 import { HeroResults } from '@/components/Results/HeroResults';
 import { EvolutionProjection } from '@/components/Results/EvolutionProjection';
 import { IntelligenceReport } from '@/components/Results/IntelligenceReport';
+import { AdBanner } from '@/components/ui/AdBanner';
 
 const App: React.FC = () => {
   const { theme, toggleTheme } = useTheme();
@@ -82,6 +83,8 @@ const App: React.FC = () => {
             onRemove={removeAmortization}
             onUpdate={updateAmortization}
           />
+
+          <AdBanner className="mt-4" />
         </aside>
 
         <div className="lg:col-span-8 flex flex-col gap-8">
@@ -92,6 +95,8 @@ const App: React.FC = () => {
             interestSavings={results.interestSavings}
             onAddAmortization={addAmortization}
           />
+
+          <AdBanner className="hidden md:flex" label="Dica Estratégica" />
 
           <EvolutionProjection
             showYearly={showYearly}
@@ -110,6 +115,8 @@ const App: React.FC = () => {
               loading={loadingAi}
             />
           </div>
+
+          <AdBanner className="mt-auto" label="Serviços Parceiros" />
         </div>
       </main>
 
