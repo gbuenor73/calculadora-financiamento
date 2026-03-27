@@ -9,6 +9,8 @@ import { HeroResults } from '@/components/Results/HeroResults';
 import { EvolutionProjection } from '@/components/Results/EvolutionProjection';
 import { IntelligenceReport } from '@/components/Results/IntelligenceReport';
 import { AdBanner } from '@/components/ui/AdBanner';
+import { CookieConsent } from '@/components/ui/CookieConsent';
+import { ContentSection } from '@/components/Layout/ContentSection';
 
 const App: React.FC = () => {
   const { theme, toggleTheme } = useTheme();
@@ -120,11 +122,16 @@ const App: React.FC = () => {
         </div>
       </main>
 
+      {/* Content Section for SEO and AdSense - valuable original content on the main page */}
+      <ContentSection />
+
       <Footer
         optimizedTotalPaid={results.optimizedTotalPaid}
         annualInterestRate={results.annualInterestRate}
         optimizedTotalInterest={results.optimizedTotalInterest}
       />
+
+      <CookieConsent />
     </div>
   );
 };
