@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://gbuenor73.github.io/calculadora-financiamento/sitemap.xml
