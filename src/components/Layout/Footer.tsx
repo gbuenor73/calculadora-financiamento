@@ -29,7 +29,7 @@ export const Footer: React.FC<FooterProps> = ({ optimizedTotalPaid, annualIntere
                 </div>
 
                 {/* Navigation Links */}
-                <div className="w-full grid grid-cols-2 md:grid-cols-4 gap-6 pt-6 border-t border-slate-100 dark:border-slate-800/60">
+                <div className="w-full grid grid-cols-2 md:grid-cols-3 gap-6 pt-6 border-t border-slate-100 dark:border-slate-800/60">
                     <div>
                         <h4 className="text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em] mb-3">Ferramenta</h4>
                         <ul className="space-y-2">
@@ -52,14 +52,7 @@ export const Footer: React.FC<FooterProps> = ({ optimizedTotalPaid, annualIntere
                             <li><Link to="/termos" className="text-[11px] font-medium text-slate-600 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Termos de Uso</Link></li>
                         </ul>
                     </div>
-                    <div>
-                        <h4 className="text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em] mb-3">Recomendações</h4>
-                        <ul className="space-y-2">
-                            <li><a href="#" className="text-[11px] font-medium text-blue-600 dark:text-blue-400 hover:underline">Melhores Taxas</a></li>
-                            <li><a href="#" className="text-[11px] font-medium text-blue-600 dark:text-blue-400 hover:underline">Seguro Habitacional</a></li>
-                            <li><a href="#" className="text-[11px] font-medium text-blue-600 dark:text-blue-400 hover:underline">Consórcios</a></li>
-                        </ul>
-                    </div>
+
                 </div>
 
                 {/* Copyright */}
