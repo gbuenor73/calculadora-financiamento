@@ -50,6 +50,40 @@ npm test
 - **Testes Unitários**: Validação dos motores matemáticos de amortização (SAC/PRICE).
 - **Testes de Aceitação (TAAC)**: Simulação de jornadas do usuário para garantir que a interface responda corretamente aos inputs.
 
+### 📝 Commits Semânticos
+
+Este projeto segue o padrão **[Conventional Commits](https://www.conventionalcommits.org/)** para manter um histórico de alterações claro e consistente.
+
+**Formato:**
+```
+<tipo>(escopo opcional): descrição curta
+```
+
+**Tipos utilizados:**
+
+| Tipo | Descrição |
+|------|-----------|
+| `feat` | Nova funcionalidade |
+| `fix` | Correção de bug |
+| `docs` | Alteração em documentação |
+| `style` | Formatação (sem alteração de lógica) |
+| `refactor` | Refatoração de código |
+| `test` | Adição ou correção de testes |
+| `chore` | Tarefas de manutenção (configs, deps) |
+| `perf` | Melhoria de performance |
+
+**Exemplos:**
+```bash
+feat: adicionar simulação de amortização extra
+fix: corrigir cálculo de juros no sistema PRICE
+docs: atualizar README com instruções de deploy
+refactor: extrair lógica de formatação para utils
+test: adicionar testes para motor SAC
+chore: atualizar dependências do projeto
+```
+
+---
+
 ### 💻 Instalação e Execução
 
 1. **Clonar e Instalar**

@@ -61,5 +61,13 @@ desktop.ini
 .turbo/
 .cache/
 
+# AI/Agent tool files
+.gemini/
+.agent/
+.agents/
+_agent/
+_agents/
+metadata.json
+
 # Optional: keep package-lock.json unless explicitly requested otherwise
 # package-lock.json
