@@ -21,7 +21,7 @@ export const HeroResults: React.FC<HeroResultsProps> = ({
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-8 h-8"><path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>
                         </div>
                         <div>
-                            <p className="text-blue-100 dark:text-blue-200 text-[10px] font-black uppercase tracking-widest">Tempo de Financiamento Salvo</p>
+                            <p className="text-blue-100 dark:text-blue-200 text-[10px] font-black uppercase tracking-widest">Tempo de Financiamento Amortizado</p>
                             <p className="text-2xl font-black">{Math.floor(monthsSaved / 12)}a <span className="text-base font-bold opacity-80">{monthsSaved % 12}m</span></p>
                         </div>
                     </div>

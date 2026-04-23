@@ -61,6 +61,6 @@ describe('App Component (Acceptance Tests)', () => {
         const addButton = screen.getByRole('button', { name: /Simular Amortização/i });
         fireEvent.click(addButton);
 
-        expect(screen.getByText(/Tempo de Financiamento Salvo/i)).toBeInTheDocument();
+        expect(screen.getByText(/Tempo de Financiamento Amortizado/i)).toBeInTheDocument();
     });
 });

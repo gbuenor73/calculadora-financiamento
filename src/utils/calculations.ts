@@ -91,6 +91,10 @@ export function simulateFinancing(
       if (monthsCount < amort.startMonth) continue;
       let applies = false;
       if (amort.frequency === 'monthly') applies = true;
+      else if (amort.frequency === 'bimonthly') applies = (monthsCount - amort.startMonth) % 2 === 0;
+      else if (amort.frequency === 'quarterly') applies = (monthsCount - amort.startMonth) % 3 === 0;
+      else if (amort.frequency === 'fourmonthly') applies = (monthsCount - amort.startMonth) % 4 === 0;
+      else if (amort.frequency === 'semiannually') applies = (monthsCount - amort.startMonth) % 6 === 0;
       else if (amort.frequency === 'yearly') applies = (monthsCount - amort.startMonth) % 12 === 0;
       else if (amort.frequency === 'once') applies = monthsCount === amort.startMonth;
       if (applies) totalExtraThisMonth += amort.amount;

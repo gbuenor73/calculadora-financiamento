@@ -118,7 +118,7 @@ export const EvolutionProjection: React.FC<EvolutionProjectionProps> = ({
                             <p className="text-lg font-black text-slate-900 dark:text-slate-100">R$ {formatCurrency(results.lastInstallment)}</p>
                         </div>
                         <div className="p-4 bg-emerald-50/50 dark:bg-emerald-900/10 rounded-2xl border border-emerald-100 dark:border-emerald-900/30 text-center">
-                            <p className="text-[10px] font-black uppercase tracking-widest text-emerald-600/60 dark:text-emerald-500/50 mb-1">Queda Real</p>
+                            <p className="text-[10px] font-black uppercase tracking-widest text-emerald-600/60 dark:text-emerald-500/50 mb-1">Queda Real da Parcela</p>
                             <p className="text-lg font-black text-emerald-600 dark:text-emerald-400">-{(((results.firstInstallment - results.lastInstallment) / results.firstInstallment) * 100).toFixed(1)}%</p>
                         </div>
                     </div>
