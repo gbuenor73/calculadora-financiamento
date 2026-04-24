@@ -185,7 +185,8 @@ export const useFinancing = () => {
                     if (a.id === id) {
                         let updated = { ...a, ...updates };
                         if (updated.amount > loanBalance) updated.amount = loanBalance;
-                        if (updated.frequency === 'yearly' && updated.startMonth > 12) updated.startMonth = 12;
+                        const periodicFrequencies = ['bimonthly', 'quarterly', 'fourmonthly', 'semiannually', 'yearly'];
+                        if (periodicFrequencies.includes(updated.frequency) && updated.startMonth > 12) updated.startMonth = 12;
                         else if (updated.frequency === 'once' && updated.startMonth > prev.termInMonths) updated.startMonth = prev.termInMonths;
                         return updated;
                     }

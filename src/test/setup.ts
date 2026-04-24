@@ -2,6 +2,13 @@ import '@testing-library/jest-dom';
 import { vi } from 'vitest';
 
 // Mock matchMedia if needed for tests
+// Mock ResizeObserver for Recharts
+global.ResizeObserver = class ResizeObserver {
+    observe() {}
+    unobserve() {}
+    disconnect() {}
+};
+
 Object.defineProperty(window, 'matchMedia', {
     writable: true,
     value: vi.fn().mockImplementation(query => ({

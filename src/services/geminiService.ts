@@ -12,8 +12,12 @@ export async function analyzeFinancing(inputs: CalculationInputs, results: Calcu
   // Use the new Google DeepMind SDK pattern
   const ai = new GoogleGenAI({ apiKey });
 
+  const frequencyLabels: Record<string, string> = {
+    monthly: 'Mensal', bimonthly: 'Bimestral', quarterly: 'Trimestral',
+    fourmonthly: 'Quadrimestral', semiannually: 'Semestral', yearly: 'Anual', once: 'Único'
+  };
   const amortDetails = inputs.extraAmortizations.map((a: any) =>
-    `- R$ ${a.amount.toLocaleString('pt-BR')} (${a.frequency === 'monthly' ? 'Mensal' : a.frequency === 'yearly' ? 'Anual' : 'Único'}, iniciando no mês ${a.startMonth})`
+    `- R$ ${a.amount.toLocaleString('pt-BR')} (${frequencyLabels[a.frequency] || a.frequency}, iniciando no mês ${a.startMonth})`
   ).join('\n');
 
   const prompt = `

@@ -70,4 +70,4 @@ _agents/
 metadata.json
 
 # Optional: keep package-lock.json unless explicitly requested otherwise
-# package-lock.json
+package-lock.json
