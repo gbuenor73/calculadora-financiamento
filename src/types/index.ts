@@ -1,5 +1,5 @@
 
-export type AmortizationFrequency = 'monthly' | 'yearly' | 'once';
+export type AmortizationFrequency = 'monthly' | 'bimonthly' | 'quarterly' | 'fourmonthly' | 'semiannually' | 'yearly' | 'once';
 export type AmortizationSystem = 'SAC' | 'PRICE';
 
 export interface ExtraAmortization {
